@@ -1451,9 +1451,10 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
     if (streq (method, "$CONNECTED"))
         zsock_send (self->cmdpipe, "i", self->connected);
     else
-    if (streq (method, "SET VERBOSE"))
+    if (streq (method, "SET VERBOSE")) {
         zsock_recv (self->cmdpipe, "i", &self->verbose);
-    else
+        self->client.verbose = self->verbose;
+    } else
     if (streq (method, "SET PLAIN AUTH")) {
         zstr_free (&self->args.username);
         zstr_free (&self->args.password);

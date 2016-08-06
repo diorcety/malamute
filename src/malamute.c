@@ -66,7 +66,9 @@ int main (int argc, char *argv [])
     }
     //  Send logging to system facility as well as stdout
     zsys_init ();
-    zsys_set_logsystem (true);
+    if (!force_foreground) {
+        zsys_set_logsystem (true);
+    }
     zsys_set_pipehwm (0);
     zsys_set_sndhwm (0);
     zsys_set_rcvhwm (0);
