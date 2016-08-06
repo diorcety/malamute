@@ -35,6 +35,7 @@ typedef struct {
     client_args_t *args;        //  Arguments from methods
 
     //  Own properties
+    bool verbose;               //  Verbose logging enabled?
     char *myaddress;            //  Address of client mailbox
     int heartbeat_timer;        //  Timeout for heartbeats to server
     zlistx_t *replays;          //  Replay server-side state set-up
@@ -103,6 +104,7 @@ static int
 client_initialize (client_t *self)
 {
     //  We'll ping the server once per second
+    self->verbose = false;
     self->heartbeat_timer = 1000;
     self->replays = zlistx_new ();
     zlistx_set_destructor (self->replays, (czmq_destructor *) s_replay_destroy);
@@ -140,7 +142,9 @@ connect_to_server_endpoint (client_t *self)
 {
     if (zsock_connect (self->dealer, "%s", self->args->endpoint)) {
         engine_set_exception (self, bad_endpoint_event);
-        zsys_warning ("could not connect to %s", self->args->endpoint);
+        if (self->verbose) {
+          zsys_warning ("could not connect to %s", self->args->endpoint);
+        }
     }
 }
 
@@ -164,7 +168,9 @@ remember_client_address (client_t *self)
 {
     free(self->myaddress);
     self->myaddress = strdup (self->args->address);
-    zsys_info ("My address is '%s'", self->myaddress);
+    if (self->verbose) {
+      zsys_info ("My address is '%s'", self->myaddress);
+    }
 }
 
 
