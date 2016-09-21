@@ -96,12 +96,14 @@ int main (int argc, char *argv [])
         if (zsys_daemonize (workdir))
             return -1;
     }
+#ifndef _WIN32
     //  Switch to user/group to run process under, if any
     if (zsys_run_as (
         zconfig_resolve (config, "server/lockfile", NULL),
         zconfig_resolve (config, "server/group", NULL),
         zconfig_resolve (config, "server/user", NULL)))
         return -1;
+#endif //_WIN32
 
     //  Install authenticator (NULL or PLAIN)
     zactor_t *auth = zactor_new (zauth, NULL);
