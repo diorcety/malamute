@@ -180,6 +180,9 @@ if (NOT DEFINED BUILD_SHARED_LIBS)
     SET(BUILD_SHARED_LIBS ON)
 endif()
 add_library(mlm ${mlm_sources})
+set_target_properties(mlm PROPERTIES
+    OUTPUT_NAME "mlm"
+    PREFIX "lib")
 set_target_properties(mlm
     PROPERTIES DEFINE_SYMBOL "MLM_EXPORTS"
 )
