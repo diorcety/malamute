@@ -189,6 +189,8 @@ main (int argc, char **argv)
     else
         test_runall (verbose);
 
+    zsys_shutdown();
+
     return 0;
 }
 /*
