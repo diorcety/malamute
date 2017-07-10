@@ -341,6 +341,7 @@ foreach(TEST_CLASS ${TEST_CLASSES})
     add_test(
         NAME ${TEST_CLASS}
         COMMAND mlm_selftest --continue --verbose --test ${TEST_CLASS}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
     set_tests_properties(
         ${TEST_CLASS}
