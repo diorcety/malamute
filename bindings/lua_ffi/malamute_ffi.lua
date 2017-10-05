@@ -223,11 +223,21 @@ int
 int
     mlm_client_set_consumer (mlm_client_t *self, const char *stream, const char *pattern);
 
+// Remove subscriptions to a stream
+// Returns >= 0 if successful, -1 if interrupted.
+int
+    mlm_client_remove_consumer (mlm_client_t *self, const char *stream, const char *pattern);
+
 // Offer a particular named service, where the pattern matches request subjects
 // using the CZMQ zrex syntax.
 // Returns >= 0 if successful, -1 if interrupted.
 int
     mlm_client_set_worker (mlm_client_t *self, const char *address, const char *pattern);
+
+// Remove offer for service
+// Returns >= 0 if successful, -1 if interrupted.
+int
+    mlm_client_remove_worker (mlm_client_t *self, const char *address, const char *pattern);
 
 // Send STREAM SEND message to server, takes ownership of message
 // and destroys message when done sending it.

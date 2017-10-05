@@ -246,6 +246,18 @@ prepare_stream_read_command (client_t *self)
     zrex_destroy (&rex);
 }
 
+//  ---------------------------------------------------------------------------
+//  prepare_stream_cancel_command
+//
+
+static void
+prepare_stream_cancel_command (client_t *self)
+{
+    zlistx_add_end (self->replays,
+        s_replay_new ("STREAM CANCEL", self->args->stream, self->args->pattern));
+    mlm_proto_set_address (self->message, self->args->address);
+    mlm_proto_set_pattern (self->message, self->args->pattern);
+}
 
 //  ---------------------------------------------------------------------------
 //  prepare_service_offer_command
@@ -260,6 +272,18 @@ prepare_service_offer_command (client_t *self)
     mlm_proto_set_pattern (self->message, self->args->pattern);
 }
 
+//  ---------------------------------------------------------------------------
+//  prepare_service_cancel_command
+//
+
+static void
+prepare_service_cancel_command (client_t *self)
+{
+    zlistx_add_end (self->replays,
+        s_replay_new ("SERVICE CANCEL", self->args->address, self->args->pattern));
+    mlm_proto_set_address (self->message, self->args->address);
+    mlm_proto_set_pattern (self->message, self->args->pattern);
+}
 
 //  ---------------------------------------------------------------------------
 //  get_first_replay_command
@@ -368,6 +392,27 @@ signal_failure (client_t *self)
     zsock_send (self->cmdpipe, "sis", "FAILURE", -1, mlm_proto_status_reason (self->message));
 }
 
+//  ---------------------------------------------------------------------------
+//  announce_unhandled_error
+//
+
+static void
+announce_unhandled_error (client_t *self)
+{
+    zsys_error ("unhandled error code from Malamute server");
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_bad_pattern
+//
+
+static void
+signal_bad_pattern (client_t *self)
+{
+    zsock_send (self->cmdpipe, "sis", "FAILURE", -1, "Pattern regexp is not valid");
+}
+
 
 //  ---------------------------------------------------------------------------
 //  check_status_code
@@ -457,6 +502,10 @@ mlm_stream_api_test (bool verbose)
     assert (rc == 0);
     // set reader to only pay attention to "temp.*" messages on the "weather" channel
     rc = mlm_client_set_consumer (reader, "weather", "temp.*");
+    assert (rc == 0);
+    rc = mlm_client_set_consumer (reader, "weather2", "temp.*");
+    assert (rc == 0);
+    rc = mlm_client_remove_consumer (reader, "weather2", "temp.*");
     assert (rc == 0);
 
     // start broadcasting temp messages - these will be received
@@ -671,6 +720,12 @@ mlm_services_api_test (bool verbose)
     assert (rc == 0);
     assert (mlm_client_connected (worker2) == true);
     rc = mlm_client_set_worker (worker2, "print_service_address", "bw.*");
+    assert (rc == 0);
+    rc = mlm_client_set_worker (worker2, "print_service_address", "bw2.*");
+    assert (rc == 0);
+    rc = mlm_client_remove_worker (worker2, "print_service_address", "bw2.*");
+    assert (rc == 0);
+    rc = mlm_client_remove_worker (worker2, "print_service_address", "bw3.*");
     assert (rc == 0);
 
     // define that requesters will generate printJob events
@@ -1261,36 +1316,4 @@ mlm_client_test (bool verbose)
     //  @end
     printf ("OK\n");
 }
-//  ---------------------------------------------------------------------------
-//  announce_unhandled_error
-//
 
-static void
-announce_unhandled_error (client_t *self)
-{
-    zsys_error ("unhandled error code from Malamute server");
-}
-
-
-//  ---------------------------------------------------------------------------
-//  signal_bad_pattern
-//
-
-static void
-signal_bad_pattern (client_t *self)
-{
-    zsock_send (self->cmdpipe, "sis", "FAILURE", -1, "Pattern regexp is not valid");
-}
-
-
-//  ---------------------------------------------------------------------------
-//  prepare_stream_cancel_command
-//
-
-static void
-prepare_stream_cancel_command (client_t *self)
-{
-    zlistx_add_end (self->replays,
-        s_replay_new ("STREAM CANCEL", self->args->stream, NULL));
-    mlm_proto_set_stream (self->message, self->args->stream);
-}

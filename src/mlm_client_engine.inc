@@ -45,19 +45,20 @@ typedef enum {
     set_consumer_event = 6,
     remove_consumer_event = 7,
     set_worker_event = 8,
-    ok_event = 9,
-    expired_event = 10,
-    bad_pattern_event = 11,
-    stream_deliver_event = 12,
-    mailbox_deliver_event = 13,
-    service_deliver_event = 14,
-    error_event = 15,
-    connection_pong_event = 16,
-    replay_ready_event = 17,
-    heartbeat_event = 18,
-    command_invalid_event = 19,
-    failed_event = 20,
-    other_event = 21
+    remove_worker_event = 9,
+    ok_event = 10,
+    expired_event = 11,
+    bad_pattern_event = 12,
+    stream_deliver_event = 13,
+    mailbox_deliver_event = 14,
+    service_deliver_event = 15,
+    error_event = 16,
+    connection_pong_event = 17,
+    replay_ready_event = 18,
+    heartbeat_event = 19,
+    command_invalid_event = 20,
+    failed_event = 21,
+    other_event = 22
 } event_t;
 
 //  Names for state machine logging and error reporting
@@ -86,6 +87,7 @@ s_event_name [] = {
     "set_consumer",
     "remove_consumer",
     "set_worker",
+    "remove_worker",
     "OK",
     "expired",
     "bad_pattern",
@@ -187,6 +189,8 @@ static void
     prepare_stream_cancel_command (client_t *self);
 static void
     prepare_service_offer_command (client_t *self);
+static void
+    prepare_service_cancel_command (client_t *self);
 static void
     signal_bad_pattern (client_t *self);
 static void
@@ -577,6 +581,15 @@ s_client_execute (s_client_t *self, event_t event)
                         signal_failure (&self->client);
                     }
                 }
+                else
+                if (self->event == remove_worker_event) {
+                    if (!self->exception) {
+                        //  signal failure
+                        if (self->verbose)
+                            zsys_debug ("%s:         $ signal failure", self->log_prefix);
+                        signal_failure (&self->client);
+                    }
+                }
                 else {
                     //  Handle unexpected protocol events
                 }
@@ -719,6 +732,25 @@ s_client_execute (s_client_t *self, event_t event)
                             zsys_debug ("%s:         $ send SERVICE_OFFER",
                                 self->log_prefix);
                         mlm_proto_set_id (self->message, MLM_PROTO_SERVICE_OFFER);
+                        mlm_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = confirming_state;
+                }
+                else
+                if (self->event == remove_worker_event) {
+                    if (!self->exception) {
+                        //  prepare service cancel command
+                        if (self->verbose)
+                            zsys_debug ("%s:         $ prepare service cancel command", self->log_prefix);
+                        prepare_service_cancel_command (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send SERVICE_CANCEL
+                        if (self->verbose)
+                            zsys_debug ("%s:         $ send SERVICE_CANCEL",
+                                self->log_prefix);
+                        mlm_proto_set_id (self->message, MLM_PROTO_SERVICE_CANCEL);
                         mlm_proto_send (self->message, self->dealer);
                     }
                     if (!self->exception)
@@ -1064,6 +1096,23 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                 }
                 else
+                if (self->event == remove_worker_event) {
+                    if (!self->exception) {
+                        //  send SERVICE_CANCEL
+                        if (self->verbose)
+                            zsys_debug ("%s:         $ send SERVICE_CANCEL",
+                                self->log_prefix);
+                        mlm_proto_set_id (self->message, MLM_PROTO_SERVICE_CANCEL);
+                        mlm_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception) {
+                        //  get next replay command
+                        if (self->verbose)
+                            zsys_debug ("%s:         $ get next replay command", self->log_prefix);
+                        get_next_replay_command (&self->client);
+                    }
+                }
+                else
                 if (self->event == replay_ready_event) {
                     if (!self->exception) {
                         //  client is connected
@@ -1133,6 +1182,15 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == set_worker_event) {
+                    if (!self->exception) {
+                        //  signal failure
+                        if (self->verbose)
+                            zsys_debug ("%s:         $ signal failure", self->log_prefix);
+                        signal_failure (&self->client);
+                    }
+                }
+                else
+                if (self->event == remove_worker_event) {
                     if (!self->exception) {
                         //  signal failure
                         if (self->verbose)
@@ -1429,7 +1487,8 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
     else
     if (streq (method, "REMOVE CONSUMER")) {
         zstr_free (&self->args.stream);
-        zsock_recv (self->cmdpipe, "s", &self->args.stream);
+        zstr_free (&self->args.pattern);
+        zsock_recv (self->cmdpipe, "ss", &self->args.stream, &self->args.pattern);
         s_client_execute (self, remove_consumer_event);
     }
     else
@@ -1438,6 +1497,13 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
         zstr_free (&self->args.pattern);
         zsock_recv (self->cmdpipe, "ss", &self->args.address, &self->args.pattern);
         s_client_execute (self, set_worker_event);
+    }
+    else
+    if (streq (method, "REMOVE WORKER")) {
+        zstr_free (&self->args.address);
+        zstr_free (&self->args.pattern);
+        zsock_recv (self->cmdpipe, "ss", &self->args.address, &self->args.pattern);
+        s_client_execute (self, remove_worker_event);
     }
     //  Cleanup pipe if any argument frames are still waiting to be eaten
     if (zsock_rcvmore (self->cmdpipe)) {
@@ -1836,15 +1902,15 @@ mlm_client_set_consumer (mlm_client_t *self, const char *stream, const char *pat
 
 
 //  ---------------------------------------------------------------------------
-//  Remove all subscriptions to a stream
+//  Remove subscriptions to a stream.
 //  Returns >= 0 if successful, -1 if interrupted.
 
 int
-mlm_client_remove_consumer (mlm_client_t *self, const char *stream)
+mlm_client_remove_consumer (mlm_client_t *self, const char *stream, const char *pattern)
 {
     assert (self);
 
-    zsock_send (self->actor, "ss", "REMOVE CONSUMER", stream);
+    zsock_send (self->actor, "sss", "REMOVE CONSUMER", stream, pattern);
     if (s_accept_reply (self, "SUCCESS", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;
@@ -1862,6 +1928,22 @@ mlm_client_set_worker (mlm_client_t *self, const char *address, const char *patt
     assert (self);
 
     zsock_send (self->actor, "sss", "SET WORKER", address, pattern);
+    if (s_accept_reply (self, "SUCCESS", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Remove offers for named service.
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int
+mlm_client_remove_worker (mlm_client_t *self, const char *address, const char *pattern)
+{
+    assert (self);
+
+    zsock_send (self->actor, "sss", "REMOVE WORKER", address, pattern);
     if (s_accept_reply (self, "SUCCESS", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;

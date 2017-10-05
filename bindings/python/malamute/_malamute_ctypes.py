@@ -138,17 +138,18 @@ class MlmProto(object):
     CONNECTION_CLOSE = 4 #
     STREAM_WRITE = 5 #
     STREAM_READ = 6 #
-    STREAM_SEND = 7 #
-    STREAM_DELIVER = 8 #
-    MAILBOX_SEND = 9 #
-    MAILBOX_DELIVER = 10 #
-    SERVICE_SEND = 11 #
-    SERVICE_OFFER = 12 #
-    SERVICE_DELIVER = 13 #
-    OK = 14 #
-    ERROR = 15 #
-    CREDIT = 16 #
-    CONFIRM = 17 #
+    STREAM_CANCEL = 7 #
+    STREAM_SEND = 8 #
+    STREAM_DELIVER = 9 #
+    MAILBOX_SEND = 10 #
+    MAILBOX_DELIVER = 11 #
+    SERVICE_SEND = 12 #
+    SERVICE_OFFER = 13 #
+    SERVICE_DELIVER = 14 #
+    OK = 15 #
+    ERROR = 16 #
+    CREDIT = 17 #
+    CONFIRM = 18 #
     allow_destruct = False
     def __init__(self, *args):
         """
@@ -406,8 +407,12 @@ lib.mlm_client_set_producer.restype = c_int
 lib.mlm_client_set_producer.argtypes = [mlm_client_p, c_char_p]
 lib.mlm_client_set_consumer.restype = c_int
 lib.mlm_client_set_consumer.argtypes = [mlm_client_p, c_char_p, c_char_p]
+lib.mlm_client_remove_consumer.restype = c_int
+lib.mlm_client_remove_consumer.argtypes = [mlm_client_p, c_char_p, c_char_p]
 lib.mlm_client_set_worker.restype = c_int
 lib.mlm_client_set_worker.argtypes = [mlm_client_p, c_char_p, c_char_p]
+lib.mlm_client_remove_worker.restype = c_int
+lib.mlm_client_remove_worker.argtypes = [mlm_client_p, c_char_p, c_char_p]
 lib.mlm_client_send.restype = c_int
 lib.mlm_client_send.argtypes = [mlm_client_p, c_char_p, POINTER(czmq.zmsg_p)]
 lib.mlm_client_sendto.restype = c_int
@@ -559,6 +564,13 @@ Returns >= 0 if successful, -1 if interrupted.
         """
         return lib.mlm_client_set_consumer(self._as_parameter_, stream, pattern)
 
+    def remove_consumer(self, stream, pattern):
+        """
+        Remove subscriptions to a stream
+Returns >= 0 if successful, -1 if interrupted.
+        """
+        return lib.mlm_client_remove_consumer(self._as_parameter_, stream, pattern)
+
     def set_worker(self, address, pattern):
         """
         Offer a particular named service, where the pattern matches request subjects
@@ -566,6 +578,13 @@ using the CZMQ zrex syntax.
 Returns >= 0 if successful, -1 if interrupted.
         """
         return lib.mlm_client_set_worker(self._as_parameter_, address, pattern)
+
+    def remove_worker(self, address, pattern):
+        """
+        Remove offer for service
+Returns >= 0 if successful, -1 if interrupted.
+        """
+        return lib.mlm_client_remove_worker(self._as_parameter_, address, pattern)
 
     def send(self, subject, content):
         """
@@ -592,7 +611,7 @@ and destroys message when done sending it.
         """
         Receive message from server; caller destroys message when done
         """
-        return czmq.Zmsg(lib.mlm_client_recv(self._as_parameter_), True)
+        return czmq.Zmsg(lib.mlm_client_recv(self._as_parameter_), False)
 
     def command(self):
         """

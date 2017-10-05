@@ -132,14 +132,16 @@ s_stream_engine_compile (stream_engine_t *self, void *client, const char *patter
 }
 
 static void
-s_stream_engine_cancel (stream_engine_t *self, void *client)
+s_stream_engine_cancel (stream_engine_t *self, void *client, const char *pattern)
 {
     selector_t *selector = (selector_t *) zlistx_first (self->selectors);
     while (selector) {
-        void *handle = zlistx_find (selector->clients, client);
-        if (handle)
-            zlistx_delete (selector->clients, handle);
-        selector = (selector_t *) zlistx_next (self->selectors);
+        if (strlen(pattern) == 0 || streq (selector->pattern, pattern)) {
+            void *handle = zlistx_find (selector->clients, client);
+            if (handle)
+                zlistx_delete (selector->clients, handle);
+            selector = (selector_t *) zlistx_next (self->selectors);
+        }
     }
 }
 
@@ -172,8 +174,9 @@ s_stream_engine_handle_command (stream_engine_t *self)
     else
     if (streq (method, "CANCEL")) {
         void *client;
-        zsock_recv (self->cmdpipe, "p", &client);
-        s_stream_engine_cancel (self, client);
+        char *pattern;
+        zsock_recv (self->cmdpipe, "ps", &client, &pattern);
+        s_stream_engine_cancel (self, client, pattern);
     }
     //  Cleanup pipe if any argument frames are still waiting to be eaten
     if (zsock_rcvmore (self->cmdpipe)) {

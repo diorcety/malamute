@@ -82,16 +82,21 @@ MLM_EXPORT int
 MLM_EXPORT int
     mlm_client_set_consumer (mlm_client_t *self, const char *stream, const char *pattern);
 
-//  Remove all subscriptions to a stream
+//  Remove subscriptions to a stream.
 //  Returns >= 0 if successful, -1 if interrupted.
 MLM_EXPORT int
-    mlm_client_remove_consumer (mlm_client_t *self, const char *stream);
+    mlm_client_remove_consumer (mlm_client_t *self, const char *stream, const char *pattern);
 
 //  Offer a particular named service, where the pattern matches request subjects
 //  using the CZMQ zrex syntax.
 //  Returns >= 0 if successful, -1 if interrupted.
 MLM_EXPORT int
     mlm_client_set_worker (mlm_client_t *self, const char *address, const char *pattern);
+
+//  Remove offers for named service.
+//  Returns >= 0 if successful, -1 if interrupted.
+MLM_EXPORT int
+    mlm_client_remove_worker (mlm_client_t *self, const char *address, const char *pattern);
 
 //  Send STREAM SEND message to server, takes ownership of message
 //  and destroys message when done sending it.
@@ -109,6 +114,7 @@ MLM_EXPORT int
     mlm_client_sendfor (mlm_client_t *self, const char *address, const char *subject, const char *tracker, uint32_t timeout, zmsg_t **content);
 
 //  Receive message from server; caller destroys message when done
+//  Caller owns return value and must destroy it when done.
 MLM_EXPORT zmsg_t *
     mlm_client_recv (mlm_client_t *self);
 

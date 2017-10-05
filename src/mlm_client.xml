@@ -46,6 +46,10 @@
         <event name = "set worker">
             <action name = "signal failure" />
         </event>
+        <!-- before we can do this, we need to connect -> immediately generate fail -->
+        <event name = "remove worker">
+            <action name = "signal failure" />
+        </event>
         <event name = "*">
             <!-- Discard any other incoming events -->
         </event>
@@ -77,6 +81,10 @@
         <event name = "set worker" next = "confirming">
             <action name = "prepare service offer command" />
             <action name = "send" message = "SERVICE OFFER" />
+        </event>
+        <event name = "remove worker" next = "confirming">
+            <action name = "prepare service cancel command" />
+            <action name = "send" message = "SERVICE CANCEL" />
         </event>
         <event name = "destructor" next = "terminating">
             <action name = "send" message = "CONNECTION CLOSE" />
@@ -166,6 +174,10 @@
             <action name = "send" message = "SERVICE OFFER" />
             <action name = "get next replay command" />
         </event>
+        <event name = "remove worker">
+            <action name = "send" message = "SERVICE CANCEL" />
+            <action name = "get next replay command" />
+        </event>
         <event name = "replay ready" next = "connected">
             <action name = "client is connected" />
         </event>
@@ -190,6 +202,10 @@
         </event>
         <!-- before we can do this, we need to connect -> immediately generate fail -->
         <event name = "set worker">
+            <action name = "signal failure" />
+        </event>
+        <!-- before we can do this, we need to connect -> immediately generate fail -->
+        <event name = "remove worker">
             <action name = "signal failure" />
         </event>
         <event name = "destructor">
@@ -294,8 +310,9 @@
     </method>
 
     <method name = "remove consumer" return = "status">
-    Remove all subscriptions to a stream
+    Remove subscriptions to a stream.
         <field name = "stream" type = "string" />
+        <field name = "pattern" type = "string" />
         <accept reply = "SUCCESS" />
         <accept reply = "FAILURE" />
     </method>
@@ -303,6 +320,14 @@
     <method name = "set worker" return = "status">
     Offer a particular named service, where the pattern matches request
     subjects using the CZMQ zrex syntax.
+        <field name = "address" type = "string" />
+        <field name = "pattern" type = "string" />
+        <accept reply = "SUCCESS" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <method name = "remove worker" return = "status">
+    Remove offers for named service.
         <field name = "address" type = "string" />
         <field name = "pattern" type = "string" />
         <accept reply = "SUCCESS" />

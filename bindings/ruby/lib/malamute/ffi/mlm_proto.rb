@@ -43,37 +43,40 @@ module Malamute
       STREAM_READ = 6
 
       #
-      STREAM_SEND = 7
+      STREAM_CANCEL = 7
 
       #
-      STREAM_DELIVER = 8
+      STREAM_SEND = 8
 
       #
-      MAILBOX_SEND = 9
+      STREAM_DELIVER = 9
 
       #
-      MAILBOX_DELIVER = 10
+      MAILBOX_SEND = 10
 
       #
-      SERVICE_SEND = 11
+      MAILBOX_DELIVER = 11
 
       #
-      SERVICE_OFFER = 12
+      SERVICE_SEND = 12
 
       #
-      SERVICE_DELIVER = 13
+      SERVICE_OFFER = 13
 
       #
-      OK = 14
+      SERVICE_DELIVER = 14
 
       #
-      ERROR = 15
+      OK = 15
 
       #
-      CREDIT = 16
+      ERROR = 16
 
       #
-      CONFIRM = 17
+      CREDIT = 17
+
+      #
+      CONFIRM = 18
 
       # Raised when one tries to use an instance of {MlmProto} after
       # the internal pointer to the native object has been nullified.

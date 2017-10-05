@@ -93,6 +93,13 @@ class MlmClient(object):
         """
         return libmalamute.mlm_client_set_consumer(self._p, to_bytes(stream), to_bytes(pattern))
 
+    def remove_consumer(self, stream, pattern):
+        """
+        Remove subscriptions to a stream
+        Returns >= 0 if successful, -1 if interrupted.
+        """
+        return libmalamute.mlm_client_remove_consumer(self._p, to_bytes(stream), to_bytes(pattern))
+
     def set_worker(self, address, pattern):
         """
         Offer a particular named service, where the pattern matches request subjects
@@ -100,6 +107,13 @@ class MlmClient(object):
         Returns >= 0 if successful, -1 if interrupted.
         """
         return libmalamute.mlm_client_set_worker(self._p, to_bytes(address), to_bytes(pattern))
+
+    def remove_worker(self, address, pattern):
+        """
+        Remove offer for service
+        Returns >= 0 if successful, -1 if interrupted.
+        """
+        return libmalamute.mlm_client_remove_worker(self._p, to_bytes(address), to_bytes(pattern))
 
     def send(self, subject, content):
         """
