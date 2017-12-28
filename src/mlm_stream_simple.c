@@ -210,8 +210,10 @@ static int
 s_stream_engine_handle_message (stream_engine_t *self)
 {
     void *sender;
+    void *target;
+    char *filter;
     mlm_msg_t *msg;
-    zsock_brecv (self->msgpipe, "pp", &sender, &msg);
+    zsock_brecv (self->msgpipe, "ppps", &sender, &target, &msg, &filter);
 
     if (self->slow_test_mode)
         zclock_sleep (1500);
@@ -219,11 +221,13 @@ s_stream_engine_handle_message (stream_engine_t *self)
     selector_t *selector = (selector_t *) zlistx_first (self->selectors);
     while (selector) {
         if (zrex_matches (selector->rex, mlm_msg_subject (msg))) {
-            void *client = zlistx_first (selector->clients);
-            while (client) {
-                if (client != sender)
-                    zsock_bsend (self->msgpipe, "pp", client, mlm_msg_link (msg));
-                client = zlistx_next (selector->clients);
+            if (filter == NULL || strlen(filter) == 0 || zrex_matches (selector->rex, filter)) {
+                void *client = zlistx_first (selector->clients);
+                while (client) {
+                    if (client != sender && (target == NULL || target == client))
+                        zsock_bsend (self->msgpipe, "pp", client, mlm_msg_link (msg));
+                    client = zlistx_next (selector->clients);
+                }
             }
         }
         selector = (selector_t *) zlistx_next (self->selectors);
