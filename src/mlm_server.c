@@ -51,6 +51,7 @@ typedef struct {
     char *name;                 //  Stream name
     zactor_t *actor;            //  Stream engine, zactor
     zsock_t *msgpipe;           //  Socket to send messages to for stream
+    zlistx_t *lastmsgs;         //  Last stream messages
 } stream_t;
 
 
@@ -141,6 +142,13 @@ s_stream_destroy (stream_t **self_p)
         stream_t *self = *self_p;
         zactor_destroy (&self->actor);
         zsock_destroy (&self->msgpipe);
+        mlm_msg_t *lastmsg = (mlm_msg_t *) zlistx_first (self->lastmsgs);
+        while(lastmsg) {
+            zlistx_delete (self->lastmsgs, zlistx_cursor (self->lastmsgs));
+            mlm_msg_unlink (&lastmsg);
+            lastmsg = (mlm_msg_t *) zlistx_next (self->lastmsgs);
+        }
+        zlistx_destroy (&self->lastmsgs);
         free (self->name);
         free (self);
         *self_p = NULL;
@@ -160,7 +168,9 @@ s_stream_new (client_t *client, const char *name)
             engine_handle_socket (client->server, self->msgpipe, s_forward_stream_traffic);
             self->actor = zactor_new (mlm_stream_simple, backend);
         }
-        if (!self->actor)
+        if (self->actor)
+            self->lastmsgs = zlistx_new ();
+        if (!self->lastmsgs)
             s_stream_destroy (&self);
     }
     return self;
@@ -520,6 +530,11 @@ store_stream_reader (client_t *self)
     if (stream) {
         zlistx_add_end (self->readers, stream);
         zsock_send (stream->actor, "sps", "COMPILE", self, mlm_proto_pattern (self->message));
+        mlm_msg_t *lastmsg = (mlm_msg_t *) zlistx_first (stream->lastmsgs);
+        while(lastmsg) {
+            zsock_bsend (stream->msgpipe, "ppp", NULL, self, mlm_msg_link (lastmsg));
+            lastmsg = (mlm_msg_t *) zlistx_next (stream->lastmsgs);
+        }
         mlm_proto_set_status_code (self->message, MLM_PROTO_SUCCESS);
     }
     else {
@@ -545,7 +560,23 @@ write_message_to_stream (client_t *self)
         mlm_proto_get_content (self->message));
     stream_t *stream = s_stream_require (self, mlm_proto_address (self->message));
     assert (stream);
-    zsock_bsend (stream->msgpipe, "pp", self, msg);
+
+    mlm_msg_t *lastmsg = (mlm_msg_t *) zlistx_first (stream->lastmsgs);
+    while(lastmsg) {
+        if (strcmp (mlm_msg_subject (lastmsg), mlm_msg_subject (msg)) == 0) {
+            break;
+        }
+        lastmsg = (mlm_msg_t *) zlistx_next (stream->lastmsgs);
+    }
+    // Save last message
+    if (lastmsg != NULL) {
+        zlistx_delete (stream->lastmsgs, zlistx_cursor (stream->lastmsgs));
+        mlm_msg_unlink (&lastmsg);
+    }
+    lastmsg = mlm_msg_link (msg);
+    zlistx_add_end (stream->lastmsgs, lastmsg);
+
+    zsock_bsend (stream->msgpipe, "ppp", self, NULL, msg);
 }
 
 

@@ -204,15 +204,16 @@ static int
 s_stream_engine_handle_message (stream_engine_t *self)
 {
     void *sender;
+    void *target;
     mlm_msg_t *msg;
-    zsock_brecv (self->msgpipe, "pp", &sender, &msg);
+    zsock_brecv (self->msgpipe, "ppp", &sender, &target, &msg);
 
     selector_t *selector = (selector_t *) zlistx_first (self->selectors);
     while (selector) {
         if (zrex_matches (selector->rex, mlm_msg_subject (msg))) {
             void *client = zlistx_first (selector->clients);
             while (client) {
-                if (client != sender)
+                if (client != sender && (target == NULL || target == client))
                     zsock_bsend (self->msgpipe, "pp", client, mlm_msg_link (msg));
                 client = zlistx_next (selector->clients);
             }
