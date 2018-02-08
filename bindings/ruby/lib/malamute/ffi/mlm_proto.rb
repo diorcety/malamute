@@ -78,6 +78,9 @@ module Malamute
       #
       STREAM_CANCEL = 18
 
+      #
+      SERVICE_CANCEL = 19
+
       # Raised when one tries to use an instance of {MlmProto} after
       # the internal pointer to the native object has been nullified.
       class DestroyedError < RuntimeError; end

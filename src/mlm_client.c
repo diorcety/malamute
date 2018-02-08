@@ -1362,36 +1362,3 @@ mlm_client_test (bool verbose)
     //  @end
     printf ("OK\n");
 }
-//  ---------------------------------------------------------------------------
-//  announce_unhandled_error
-//
-
-static void
-announce_unhandled_error (client_t *self)
-{
-    zsys_error ("unhandled error code from Malamute server");
-}
-
-
-//  ---------------------------------------------------------------------------
-//  signal_bad_pattern
-//
-
-static void
-signal_bad_pattern (client_t *self)
-{
-    zsock_send (self->cmdpipe, "sis", "FAILURE", -1, "Pattern regexp is not valid");
-}
-
-
-//  ---------------------------------------------------------------------------
-//  prepare_stream_cancel_command
-//
-
-static void
-prepare_stream_cancel_command (client_t *self)
-{
-    zlistx_add_end (self->replays,
-        s_replay_new ("STREAM CANCEL", self->args->stream, NULL));
-    mlm_proto_set_stream (self->message, self->args->stream);
-}

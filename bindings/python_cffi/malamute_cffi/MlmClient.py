@@ -90,12 +90,12 @@ class MlmClient(object):
         """
         return utils.lib.mlm_client_set_consumer(self._p, utils.to_bytes(stream), utils.to_bytes(pattern))
 
-    def remove_consumer(self, stream):
+    def remove_consumer(self, stream, pattern):
         """
-        Remove all subscriptions to a stream
+        Remove subscriptions to a stream.
         Returns >= 0 if successful, -1 if interrupted.
         """
-        return utils.lib.mlm_client_remove_consumer(self._p, utils.to_bytes(stream))
+        return utils.lib.mlm_client_remove_consumer(self._p, utils.to_bytes(stream), utils.to_bytes(pattern))
 
     def set_worker(self, address, pattern):
         """
@@ -104,6 +104,13 @@ class MlmClient(object):
         Returns >= 0 if successful, -1 if interrupted.
         """
         return utils.lib.mlm_client_set_worker(self._p, utils.to_bytes(address), utils.to_bytes(pattern))
+
+    def remove_worker(self, address, pattern):
+        """
+        Remove offers for named service.
+        Returns >= 0 if successful, -1 if interrupted.
+        """
+        return utils.lib.mlm_client_remove_worker(self._p, utils.to_bytes(address), utils.to_bytes(pattern))
 
     def send(self, subject, content):
         """

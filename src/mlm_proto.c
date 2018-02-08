@@ -362,6 +362,11 @@ mlm_proto_t *
         mlm_proto_set_id (self, MLM_PROTO_STREAM_CANCEL);
     }
     else
+    if (streq ("MLM_PROTO_SERVICE_CANCEL", message)) {
+        self = mlm_proto_new ();
+        mlm_proto_set_id (self, MLM_PROTO_SERVICE_CANCEL);
+    }
+    else
        {
         zsys_error ("message=%s is not known", message);
         return NULL;
@@ -967,6 +972,38 @@ mlm_proto_t *
             }
             strncpy (self->stream, s, 256);
             }
+            {
+            char *s = zconfig_get (content, "pattern", NULL);
+            if (!s) {
+                mlm_proto_destroy (&self);
+                return NULL;
+            }
+            strncpy (self->pattern, s, 256);
+            }
+            break;
+        case MLM_PROTO_SERVICE_CANCEL:
+            content = zconfig_locate (config, "content");
+            if (!content) {
+                zsys_error ("Can't find 'content' section");
+                mlm_proto_destroy (&self);
+                return NULL;
+            }
+            {
+            char *s = zconfig_get (content, "address", NULL);
+            if (!s) {
+                mlm_proto_destroy (&self);
+                return NULL;
+            }
+            strncpy (self->address, s, 256);
+            }
+            {
+            char *s = zconfig_get (content, "pattern", NULL);
+            if (!s) {
+                mlm_proto_destroy (&self);
+                return NULL;
+            }
+            strncpy (self->pattern, s, 256);
+            }
             break;
     }
     return self;
@@ -1211,6 +1248,12 @@ mlm_proto_recv (mlm_proto_t *self, zsock_t *input)
 
         case MLM_PROTO_STREAM_CANCEL:
             GET_STRING (self->stream);
+            GET_STRING (self->pattern);
+            break;
+
+        case MLM_PROTO_SERVICE_CANCEL:
+            GET_STRING (self->address);
+            GET_STRING (self->pattern);
             break;
 
         default:
@@ -1310,6 +1353,11 @@ mlm_proto_send (mlm_proto_t *self, zsock_t *output)
             break;
         case MLM_PROTO_STREAM_CANCEL:
             frame_size += 1 + strlen (self->stream);
+            frame_size += 1 + strlen (self->pattern);
+            break;
+        case MLM_PROTO_SERVICE_CANCEL:
+            frame_size += 1 + strlen (self->address);
+            frame_size += 1 + strlen (self->pattern);
             break;
     }
     //  Now serialize message into the frame
@@ -1414,6 +1462,12 @@ mlm_proto_send (mlm_proto_t *self, zsock_t *output)
 
         case MLM_PROTO_STREAM_CANCEL:
             PUT_STRING (self->stream);
+            PUT_STRING (self->pattern);
+            break;
+
+        case MLM_PROTO_SERVICE_CANCEL:
+            PUT_STRING (self->address);
+            PUT_STRING (self->pattern);
             break;
 
     }
@@ -1581,6 +1635,13 @@ mlm_proto_print (mlm_proto_t *self)
         case MLM_PROTO_STREAM_CANCEL:
             zsys_debug ("MLM_PROTO_STREAM_CANCEL:");
             zsys_debug ("    stream='%s'", self->stream);
+            zsys_debug ("    pattern='%s'", self->pattern);
+            break;
+
+        case MLM_PROTO_SERVICE_CANCEL:
+            zsys_debug ("MLM_PROTO_SERVICE_CANCEL:");
+            zsys_debug ("    address='%s'", self->address);
+            zsys_debug ("    pattern='%s'", self->pattern);
             break;
 
     }
@@ -1983,6 +2044,23 @@ mlm_proto_zpl (mlm_proto_t *self, zconfig_t *parent)
 
             zconfig_t *config = zconfig_new ("content", root);
             zconfig_putf (config, "stream", "%s", self->stream);
+            zconfig_putf (config, "pattern", "%s", self->pattern);
+            break;
+            }
+        case MLM_PROTO_SERVICE_CANCEL:
+        {
+            zconfig_put (root, "message", "MLM_PROTO_SERVICE_CANCEL");
+
+            if (self->routing_id) {
+                char *hex = NULL;
+                STR_FROM_BYTES (hex, zframe_data (self->routing_id), zframe_size (self->routing_id));
+                zconfig_putf (root, "routing_id", "%s", hex);
+                zstr_free (&hex);
+            }
+
+            zconfig_t *config = zconfig_new ("content", root);
+            zconfig_putf (config, "address", "%s", self->address);
+            zconfig_putf (config, "pattern", "%s", self->pattern);
             break;
             }
     }
@@ -2085,6 +2163,9 @@ mlm_proto_command (mlm_proto_t *self)
             break;
         case MLM_PROTO_STREAM_CANCEL:
             return ("STREAM_CANCEL");
+            break;
+        case MLM_PROTO_SERVICE_CANCEL:
+            return ("SERVICE_CANCEL");
             break;
     }
     return "?";
@@ -2932,6 +3013,7 @@ mlm_proto_test (bool verbose)
     mlm_proto_set_id (self, MLM_PROTO_STREAM_CANCEL);
 
     mlm_proto_set_stream (self, "Life is short but Now lasts for ever");
+    mlm_proto_set_pattern (self, "Life is short but Now lasts for ever");
     // convert to zpl
     config = mlm_proto_zpl (self, NULL);
     if (verbose)
@@ -2952,6 +3034,37 @@ mlm_proto_test (bool verbose)
         if (instance < 2)
             assert (mlm_proto_routing_id (self));
         assert (streq (mlm_proto_stream (self), "Life is short but Now lasts for ever"));
+        assert (streq (mlm_proto_pattern (self), "Life is short but Now lasts for ever"));
+        if (instance == 2) {
+            mlm_proto_destroy (&self);
+            self = self_temp;
+        }
+    }
+    mlm_proto_set_id (self, MLM_PROTO_SERVICE_CANCEL);
+
+    mlm_proto_set_address (self, "Life is short but Now lasts for ever");
+    mlm_proto_set_pattern (self, "Life is short but Now lasts for ever");
+    // convert to zpl
+    config = mlm_proto_zpl (self, NULL);
+    if (verbose)
+        zconfig_print (config);
+    //  Send twice
+    mlm_proto_send (self, output);
+    mlm_proto_send (self, output);
+
+    for (instance = 0; instance < 3; instance++) {
+        mlm_proto_t *self_temp = self;
+        if (instance < 2)
+            mlm_proto_recv (self, input);
+        else {
+            self = mlm_proto_new_zpl (config);
+            assert (self);
+            zconfig_destroy (&config);
+        }
+        if (instance < 2)
+            assert (mlm_proto_routing_id (self));
+        assert (streq (mlm_proto_address (self), "Life is short but Now lasts for ever"));
+        assert (streq (mlm_proto_pattern (self), "Life is short but Now lasts for ever"));
         if (instance == 2) {
             mlm_proto_destroy (&self);
             self = self_temp;

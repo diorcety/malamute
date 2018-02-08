@@ -98,6 +98,7 @@ class MlmClient: public Nan::ObjectWrap {
     static NAN_METHOD (_set_consumer);
     static NAN_METHOD (_remove_consumer);
     static NAN_METHOD (_set_worker);
+    static NAN_METHOD (_remove_worker);
     static NAN_METHOD (_send);
     static NAN_METHOD (_sendto);
     static NAN_METHOD (_sendfor);

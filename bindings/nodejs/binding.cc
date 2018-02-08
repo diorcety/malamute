@@ -486,6 +486,7 @@ NAN_MODULE_INIT (MlmClient::Init) {
     Nan::SetPrototypeMethod (tpl, "setConsumer", _set_consumer);
     Nan::SetPrototypeMethod (tpl, "removeConsumer", _remove_consumer);
     Nan::SetPrototypeMethod (tpl, "setWorker", _set_worker);
+    Nan::SetPrototypeMethod (tpl, "removeWorker", _remove_worker);
     Nan::SetPrototypeMethod (tpl, "send", _send);
     Nan::SetPrototypeMethod (tpl, "sendto", _sendto);
     Nan::SetPrototypeMethod (tpl, "sendfor", _sendfor);
@@ -690,7 +691,17 @@ NAN_METHOD (MlmClient::_remove_consumer) {
     Nan::Utf8String stream_utf8 (info [0].As<String>());
     stream = *stream_utf8;
          //} //bjornw end
-    int result = mlm_client_remove_consumer (mlm_client->self, (const char *)stream);
+    char *pattern;
+    if (info [1]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `pattern`");
+    else
+    if (!info [1]->IsString ())
+        return Nan::ThrowTypeError ("`pattern` must be a string");
+    //else { // bjornw: remove brackets to keep scope
+    Nan::Utf8String pattern_utf8 (info [1].As<String>());
+    pattern = *pattern_utf8;
+         //} //bjornw end
+    int result = mlm_client_remove_consumer (mlm_client->self, (const char *)stream, (const char *)pattern);
     info.GetReturnValue ().Set (Nan::New<Number>(result));
 }
 
@@ -717,6 +728,32 @@ NAN_METHOD (MlmClient::_set_worker) {
     pattern = *pattern_utf8;
          //} //bjornw end
     int result = mlm_client_set_worker (mlm_client->self, (const char *)address, (const char *)pattern);
+    info.GetReturnValue ().Set (Nan::New<Number>(result));
+}
+
+NAN_METHOD (MlmClient::_remove_worker) {
+    MlmClient *mlm_client = Nan::ObjectWrap::Unwrap <MlmClient> (info.Holder ());
+    char *address;
+    if (info [0]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `address`");
+    else
+    if (!info [0]->IsString ())
+        return Nan::ThrowTypeError ("`address` must be a string");
+    //else { // bjornw: remove brackets to keep scope
+    Nan::Utf8String address_utf8 (info [0].As<String>());
+    address = *address_utf8;
+         //} //bjornw end
+    char *pattern;
+    if (info [1]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `pattern`");
+    else
+    if (!info [1]->IsString ())
+        return Nan::ThrowTypeError ("`pattern` must be a string");
+    //else { // bjornw: remove brackets to keep scope
+    Nan::Utf8String pattern_utf8 (info [1].As<String>());
+    pattern = *pattern_utf8;
+         //} //bjornw end
+    int result = mlm_client_remove_worker (mlm_client->self, (const char *)address, (const char *)pattern);
     info.GetReturnValue ().Set (Nan::New<Number>(result));
 }
 

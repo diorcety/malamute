@@ -26,5 +26,6 @@ ERROR = 15 #
 CREDIT = 16 #
 CONFIRM = 17 #
 STREAM_CANCEL = 18 #
+SERVICE_CANCEL = 19 #
 from .MlmProto import *
 from .MlmClient import *

@@ -348,10 +348,10 @@ and ( ) to create groups. Returns 0 if subscription was successful, else -1.
 Returns >= 0 if successful, -1 if interrupted.
 
 ```
-integer my_mlm_client.removeConsumer (String)
+integer my_mlm_client.removeConsumer (String, String)
 ```
 
-Remove all subscriptions to a stream
+Remove subscriptions to a stream.
 Returns >= 0 if successful, -1 if interrupted.
 
 ```
@@ -360,6 +360,13 @@ integer my_mlm_client.setWorker (String, String)
 
 Offer a particular named service, where the pattern matches request subjects
 using the CZMQ zrex syntax.
+Returns >= 0 if successful, -1 if interrupted.
+
+```
+integer my_mlm_client.removeWorker (String, String)
+```
+
+Remove offers for named service.
 Returns >= 0 if successful, -1 if interrupted.
 
 ```

@@ -109,12 +109,12 @@ public class MlmClient implements AutoCloseable{
         return __setConsumer (self, stream, pattern);
     }
     /*
-    Remove all subscriptions to a stream
+    Remove subscriptions to a stream.
     Returns >= 0 if successful, -1 if interrupted.
     */
-    native static int __removeConsumer (long self, String stream);
-    public int removeConsumer (String stream) {
-        return __removeConsumer (self, stream);
+    native static int __removeConsumer (long self, String stream, String pattern);
+    public int removeConsumer (String stream, String pattern) {
+        return __removeConsumer (self, stream, pattern);
     }
     /*
     Offer a particular named service, where the pattern matches request subjects
@@ -124,6 +124,14 @@ public class MlmClient implements AutoCloseable{
     native static int __setWorker (long self, String address, String pattern);
     public int setWorker (String address, String pattern) {
         return __setWorker (self, address, pattern);
+    }
+    /*
+    Remove offers for named service.
+    Returns >= 0 if successful, -1 if interrupted.
+    */
+    native static int __removeWorker (long self, String address, String pattern);
+    public int removeWorker (String address, String pattern) {
+        return __removeWorker (self, address, pattern);
     }
     /*
     Send STREAM SEND message to server, takes ownership of message

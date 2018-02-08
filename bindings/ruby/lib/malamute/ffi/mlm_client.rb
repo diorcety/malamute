@@ -193,15 +193,16 @@ module Malamute
         result
       end
 
-      # Remove all subscriptions to a stream
+      # Remove subscriptions to a stream.
       # Returns >= 0 if successful, -1 if interrupted.
       #
       # @param stream [String, #to_s, nil]
+      # @param pattern [String, #to_s, nil]
       # @return [Integer]
-      def remove_consumer(stream)
+      def remove_consumer(stream, pattern)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        result = ::Malamute::FFI.mlm_client_remove_consumer(self_p, stream)
+        result = ::Malamute::FFI.mlm_client_remove_consumer(self_p, stream, pattern)
         result
       end
 
@@ -216,6 +217,19 @@ module Malamute
         raise DestroyedError unless @ptr
         self_p = @ptr
         result = ::Malamute::FFI.mlm_client_set_worker(self_p, address, pattern)
+        result
+      end
+
+      # Remove offers for named service.
+      # Returns >= 0 if successful, -1 if interrupted.
+      #
+      # @param address [String, #to_s, nil]
+      # @param pattern [String, #to_s, nil]
+      # @return [Integer]
+      def remove_worker(address, pattern)
+        raise DestroyedError unless @ptr
+        self_p = @ptr
+        result = ::Malamute::FFI.mlm_client_remove_worker(self_p, address, pattern)
         result
       end
 

@@ -17,6 +17,7 @@ The following ABNF grammar defines the The Malamute Protocol:
 
     service-traffic = C:SERVICE-SEND ( S:OK [ S:CONFIRM ] / S:ERROR )
                     / C:SERVICE-OFFER
+                    / C:SERVICE-CANCEL
                     / S:SERVICE-DELIVER [ C:CONFIRM ]
 
     credit = C:CREDIT
@@ -182,11 +183,19 @@ The following ABNF grammar defines the The Malamute Protocol:
     tracker         = string                ; Message tracker
     status          = status                ;
 
-    ;  Cancels and removes all subscriptions to a stream. Server replies with
-    ;  OK or ERROR.
+    ;  Cancels and removes subscriptions to a stream. Server replies with OK
+    ;  or ERROR.
 
-    STREAM-CANCEL   = signature %d18 stream
+    STREAM-CANCEL   = signature %d18 stream pattern
     stream          = string                ; Name of stream
+    pattern         = string                ; Match message subjects
+
+    ;  Cancels and removes offers for a named service. Server replies with OK
+    ;  or ERROR.
+
+    SERVICE-CANCEL  = signature %d19 address pattern
+    address         = string                ; Service address
+    pattern         = string                ; Match message subjects
 
     ; A msg is zero or more distinct frames
     msg             = *frame

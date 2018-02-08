@@ -108,11 +108,11 @@ int QMlmClient::setConsumer (const QString &stream, const QString &pattern)
 }
 
 ///
-//  Remove all subscriptions to a stream
+//  Remove subscriptions to a stream.
 //  Returns >= 0 if successful, -1 if interrupted.
-int QMlmClient::removeConsumer (const QString &stream)
+int QMlmClient::removeConsumer (const QString &stream, const QString &pattern)
 {
-    int rv = mlm_client_remove_consumer (self, stream.toUtf8().data());
+    int rv = mlm_client_remove_consumer (self, stream.toUtf8().data(), pattern.toUtf8().data());
     return rv;
 }
 
@@ -123,6 +123,15 @@ int QMlmClient::removeConsumer (const QString &stream)
 int QMlmClient::setWorker (const QString &address, const QString &pattern)
 {
     int rv = mlm_client_set_worker (self, address.toUtf8().data(), pattern.toUtf8().data());
+    return rv;
+}
+
+///
+//  Remove offers for named service.
+//  Returns >= 0 if successful, -1 if interrupted.
+int QMlmClient::removeWorker (const QString &address, const QString &pattern)
+{
+    int rv = mlm_client_remove_worker (self, address.toUtf8().data(), pattern.toUtf8().data());
     return rv;
 }
 

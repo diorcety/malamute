@@ -45,6 +45,7 @@ extern "C" {
 #define MLM_PROTO_CREDIT 16                 //
 #define MLM_PROTO_CONFIRM 17                //
 #define MLM_PROTO_STREAM_CANCEL 18          //
+#define MLM_PROTO_SERVICE_CANCEL 19         //
 
 //  Create a new empty mlm_proto
 MLM_EXPORT mlm_proto_t *

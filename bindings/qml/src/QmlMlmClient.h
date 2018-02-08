@@ -70,14 +70,18 @@ public slots:
     //  Returns >= 0 if successful, -1 if interrupted.
     int setConsumer (const QString &stream, const QString &pattern);
 
-    //  Remove all subscriptions to a stream
+    //  Remove subscriptions to a stream.
     //  Returns >= 0 if successful, -1 if interrupted.
-    int removeConsumer (const QString &stream);
+    int removeConsumer (const QString &stream, const QString &pattern);
 
     //  Offer a particular named service, where the pattern matches request subjects
     //  using the CZMQ zrex syntax.
     //  Returns >= 0 if successful, -1 if interrupted.
     int setWorker (const QString &address, const QString &pattern);
+
+    //  Remove offers for named service.
+    //  Returns >= 0 if successful, -1 if interrupted.
+    int removeWorker (const QString &address, const QString &pattern);
 
     //  Send STREAM SEND message to server, takes ownership of message
     //  and destroys message when done sending it.

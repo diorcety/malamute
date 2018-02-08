@@ -43,6 +43,7 @@
     <constant name = "credit" value = "16" />
     <constant name = "confirm" value = "17" />
     <constant name = "stream_cancel" value = "18" />
+    <constant name = "service_cancel" value = "19" />
 
 <constructor>
     Create a new empty mlm_proto
