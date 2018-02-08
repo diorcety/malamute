@@ -25,6 +25,9 @@
     <target name = "obs" />
     <target name = "debian" />
     <target name = "redhat" />
+    <target name = "qt" />
+    <target name = "qml" />
+    <target name = "nodejs" />
 
     <main name = "malamute" service = "1" />
     <main name = "mshell" />
