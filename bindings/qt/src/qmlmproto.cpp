@@ -23,6 +23,13 @@ QMlmProto::QMlmProto (QObject *qObjParent) : QObject (qObjParent)
 }
 
 ///
+//  Create a new mlm_proto from zpl/zconfig_t *
+QMlmProto* QMlmProto::newZpl (QZconfig *config, QObject *qObjParent)
+{
+    return new QMlmProto (mlm_proto_new_zpl (config->self), qObjParent);
+}
+
+///
 //  Destroy a mlm_proto instance
 QMlmProto::~QMlmProto ()
 {
@@ -30,8 +37,16 @@ QMlmProto::~QMlmProto ()
 }
 
 ///
+//  Create a deep copy of a mlm_proto instance
+QMlmProto * QMlmProto::dup ()
+{
+    QMlmProto *rv = new QMlmProto (mlm_proto_dup (self));
+    return rv;
+}
+
+///
 //  Receive a mlm_proto from the socket. Returns 0 if OK, -1 if
-//  there was an error. Blocks if there is no message waiting. 
+//  there was an error. Blocks if there is no message waiting.
 int QMlmProto::recv (QZsock *input)
 {
     int rv = mlm_proto_recv (self, input->self);
@@ -51,7 +66,15 @@ int QMlmProto::send (QZsock *output)
 void QMlmProto::print ()
 {
     mlm_proto_print (self);
-    
+
+}
+
+///
+//  Export class as zconfig_t*. Caller is responsibe for destroying the instance
+QZconfig * QMlmProto::zpl (QZconfig *parent)
+{
+    QZconfig *rv = new QZconfig (mlm_proto_zpl (self, parent->self));
+    return rv;
 }
 
 ///
@@ -67,7 +90,7 @@ QZframe * QMlmProto::routingId ()
 void QMlmProto::setRoutingId (QZframe *routingId)
 {
     mlm_proto_set_routing_id (self, routingId->self);
-    
+
 }
 
 ///
@@ -83,7 +106,7 @@ int QMlmProto::id ()
 void QMlmProto::setId (int id)
 {
     mlm_proto_set_id (self, id);
-    
+
 }
 
 ///
@@ -107,7 +130,7 @@ const QString QMlmProto::address ()
 void QMlmProto::setAddress (const QString &address)
 {
     mlm_proto_set_address (self, address.toUtf8().data());
-    
+
 }
 
 ///
@@ -123,7 +146,7 @@ const QString QMlmProto::stream ()
 void QMlmProto::setStream (const QString &stream)
 {
     mlm_proto_set_stream (self, stream.toUtf8().data());
-    
+
 }
 
 ///
@@ -139,7 +162,7 @@ const QString QMlmProto::pattern ()
 void QMlmProto::setPattern (const QString &pattern)
 {
     mlm_proto_set_pattern (self, pattern.toUtf8().data());
-    
+
 }
 
 ///
@@ -155,7 +178,7 @@ const QString QMlmProto::subject ()
 void QMlmProto::setSubject (const QString &subject)
 {
     mlm_proto_set_subject (self, subject.toUtf8().data());
-    
+
 }
 
 ///
@@ -175,11 +198,11 @@ QZmsg * QMlmProto::getContent ()
 }
 
 ///
-//  
+//
 void QMlmProto::setContent (QZmsg *contentP)
 {
     mlm_proto_set_content (self, &contentP->self);
-    
+
 }
 
 ///
@@ -195,7 +218,7 @@ const QString QMlmProto::sender ()
 void QMlmProto::setSender (const QString &sender)
 {
     mlm_proto_set_sender (self, sender.toUtf8().data());
-    
+
 }
 
 ///
@@ -211,7 +234,7 @@ const QString QMlmProto::tracker ()
 void QMlmProto::setTracker (const QString &tracker)
 {
     mlm_proto_set_tracker (self, tracker.toUtf8().data());
-    
+
 }
 
 ///
@@ -227,7 +250,7 @@ quint32 QMlmProto::timeout ()
 void QMlmProto::setTimeout (quint32 timeout)
 {
     mlm_proto_set_timeout (self, (uint32_t) timeout);
-    
+
 }
 
 ///
@@ -243,7 +266,7 @@ quint16 QMlmProto::statusCode ()
 void QMlmProto::setStatusCode (quint16 statusCode)
 {
     mlm_proto_set_status_code (self, (uint16_t) statusCode);
-    
+
 }
 
 ///
@@ -259,7 +282,7 @@ const QString QMlmProto::statusReason ()
 void QMlmProto::setStatusReason (const QString &statusReason)
 {
     mlm_proto_set_status_reason (self, statusReason.toUtf8().data());
-    
+
 }
 
 ///
@@ -275,7 +298,7 @@ quint16 QMlmProto::amount ()
 void QMlmProto::setAmount (quint16 amount)
 {
     mlm_proto_set_amount (self, (uint16_t) amount);
-    
+
 }
 
 ///
@@ -283,7 +306,7 @@ void QMlmProto::setAmount (quint16 amount)
 void QMlmProto::test (bool verbose)
 {
     mlm_proto_test (verbose);
-    
+
 }
 /*
 ################################################################################

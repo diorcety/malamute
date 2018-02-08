@@ -31,17 +31,23 @@
 class QMlmProto;
 class QMlmClient;
 class QZsock;
+class QZconfig;
 class QZframe;
 class QZmsg;
 class QZactor;
+class QZlist;
+class QZchunk;
 
 //  Public API classes
 #include "qmlmproto.h"
 #include "qmlmclient.h"
 #include "qzsock.h"
+#include "qzconfig.h"
 #include "qzframe.h"
 #include "qzmsg.h"
 #include "qzactor.h"
+#include "qzlist.h"
+#include "qzchunk.h"
 
 #endif //  Q_MLM_H
 /*

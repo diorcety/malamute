@@ -14,17 +14,23 @@ qmalamute-uselib:!qmalamute-buildlib {
                      $$PWD/qmlmproto.h \
                      $$PWD/qmlmclient.h \
                      $$PWD/qzsock.h \
+                     $$PWD/qzconfig.h \
                      $$PWD/qzframe.h \
                      $$PWD/qzmsg.h \
-                     $$PWD/qzactor.h
+                     $$PWD/qzactor.h \
+                     $$PWD/qzlist.h \
+                     $$PWD/qzchunk.h
 
     SOURCES       += \
                      $$PWD/qmlmproto.cpp \
                      $$PWD/qmlmclient.cpp \
                      $$PWD/qzsock.cpp \
+                     $$PWD/qzconfig.cpp \
                      $$PWD/qzframe.cpp \
                      $$PWD/qzmsg.cpp \
-                     $$PWD/qzactor.cpp
+                     $$PWD/qzactor.cpp \
+                     $$PWD/qzlist.cpp \
+                     $$PWD/qzchunk.cpp
 }
 
 win32 {

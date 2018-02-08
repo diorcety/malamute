@@ -27,7 +27,7 @@ android {
   !system(bash $$MALAMUTE_ROOT/builds/android/build.sh) {
     error(Failed to build the mlm library with $$MALAMUTE_ROOT/builds/android/build.sh)
   }
-  
+
   VENDOR_PREFIX = $$MALAMUTE_ROOT/builds/android/prefix/$(TOOLCHAIN_NAME)
   BUILDDIR  = $$PWD/build/$(TOOLCHAIN_NAME)
   QMAKE_LIBDIR += $$VENDOR_PREFIX/lib
@@ -39,11 +39,11 @@ LIBS += -lmlm
 HEADERS += \
   $$SRCDIR/qml_malamute_plugin.h \
   $$SRCDIR/QmlMlmProto.h \
-  $$SRCDIR/QmlMlmClient.h 
+  $$SRCDIR/QmlMlmClient.h
 
 SOURCES += \
   $$SRCDIR/QmlMlmProto.cpp \
-  $$SRCDIR/QmlMlmClient.cpp 
+  $$SRCDIR/QmlMlmClient.cpp
 
 OBJECTS_DIR = $$BUILDDIR/.obj
 MOC_DIR     = $$BUILDDIR/.moc
