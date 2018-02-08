@@ -122,10 +122,12 @@ Java_org_zeromq_mlm_MlmClient__1_1removeWorker (JNIEnv *env, jclass c, jlong sel
 }
 
 JNIEXPORT jint JNICALL
-Java_org_zeromq_mlm_MlmClient__1_1send (JNIEnv *env, jclass c, jlong self, jstring subject, jlong content)
+Java_org_zeromq_mlm_MlmClient__1_1send (JNIEnv *env, jclass c, jlong self, jstring address, jstring subject, jlong content)
 {
+    char *address_ = (char *) (*env)->GetStringUTFChars (env, address, NULL);
     char *subject_ = (char *) (*env)->GetStringUTFChars (env, subject, NULL);
-    jint send_ = (jint) mlm_client_send ((mlm_client_t *) (intptr_t) self, subject_, (zmsg_t **) (intptr_t) &content);
+    jint send_ = (jint) mlm_client_send ((mlm_client_t *) (intptr_t) self, address_, subject_, (zmsg_t **) (intptr_t) &content);
+    (*env)->ReleaseStringUTFChars (env, address, address_);
     (*env)->ReleaseStringUTFChars (env, subject, subject_);
     return send_;
 }
@@ -226,11 +228,13 @@ Java_org_zeromq_mlm_MlmClient__1_1tracker (JNIEnv *env, jclass c, jlong self)
 }
 
 JNIEXPORT jint JNICALL
-Java_org_zeromq_mlm_MlmClient__1_1sendx (JNIEnv *env, jclass c, jlong self, jstring subject, jstring content)
+Java_org_zeromq_mlm_MlmClient__1_1sendx (JNIEnv *env, jclass c, jlong self, jstring address, jstring subject, jstring content)
 {
+    char *address_ = (char *) (*env)->GetStringUTFChars (env, address, NULL);
     char *subject_ = (char *) (*env)->GetStringUTFChars (env, subject, NULL);
     char *content_ = (char *) (*env)->GetStringUTFChars (env, content, NULL);
-    jint sendx_ = (jint) mlm_client_sendx ((mlm_client_t *) (intptr_t) self, subject_, content_);
+    jint sendx_ = (jint) mlm_client_sendx ((mlm_client_t *) (intptr_t) self, address_, subject_, content_);
+    (*env)->ReleaseStringUTFChars (env, address, address_);
     (*env)->ReleaseStringUTFChars (env, subject, subject_);
     (*env)->ReleaseStringUTFChars (env, content, content_);
     return sendx_;

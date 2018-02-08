@@ -105,7 +105,7 @@ module Malamute
       attach_function :mlm_client_remove_consumer, [:pointer, :string, :string], :int, **opts
       attach_function :mlm_client_set_worker, [:pointer, :string, :string], :int, **opts
       attach_function :mlm_client_remove_worker, [:pointer, :string, :string], :int, **opts
-      attach_function :mlm_client_send, [:pointer, :string, :pointer], :int, **opts
+      attach_function :mlm_client_send, [:pointer, :string, :string, :pointer], :int, **opts
       attach_function :mlm_client_sendto, [:pointer, :string, :string, :string, :uint32, :pointer], :int, **opts
       attach_function :mlm_client_sendfor, [:pointer, :string, :string, :string, :uint32, :pointer], :int, **opts
       attach_function :mlm_client_recv, [:pointer], :pointer, **opts
@@ -117,10 +117,10 @@ module Malamute
       attach_function :mlm_client_subject, [:pointer], :string, **opts
       attach_function :mlm_client_content, [:pointer], :pointer, **opts
       attach_function :mlm_client_tracker, [:pointer], :string, **opts
-      attach_function :mlm_client_sendx, [:pointer, :string, :string, :varargs], :int, **opts
+      attach_function :mlm_client_sendx, [:pointer, :string, :string, :string, :varargs], :int, **opts
       attach_function :mlm_client_sendtox, [:pointer, :string, :string, :string, :varargs], :int, **opts
       attach_function :mlm_client_sendforx, [:pointer, :string, :string, :string, :varargs], :int, **opts
-      attach_function :mlm_client_recvx, [:pointer, :pointer, :pointer, :varargs], :int, **opts
+      attach_function :mlm_client_recvx, [:pointer, :pointer, :pointer, :pointer, :varargs], :int, **opts
       attach_function :mlm_client_set_verbose, [:pointer, :bool], :void, **opts
       attach_function :mlm_client_test, [:bool], :void, **opts
 

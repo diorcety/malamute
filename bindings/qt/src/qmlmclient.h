@@ -81,7 +81,7 @@ public:
 
     //  Send STREAM SEND message to server, takes ownership of message
     //  and destroys message when done sending it.
-    int send (const QString &subject, QZmsg *content);
+    int send (const QString &address, const QString &subject, QZmsg *content);
 
     //  Send MAILBOX SEND message to server, takes ownership of message
     //  and destroys message when done sending it.

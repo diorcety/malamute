@@ -138,9 +138,9 @@ int QMlmClient::removeWorker (const QString &address, const QString &pattern)
 ///
 //  Send STREAM SEND message to server, takes ownership of message
 //  and destroys message when done sending it.
-int QMlmClient::send (const QString &subject, QZmsg *content)
+int QMlmClient::send (const QString &address, const QString &subject, QZmsg *content)
 {
-    int rv = mlm_client_send (self, subject.toUtf8().data(), &content->self);
+    int rv = mlm_client_send (self, address.toUtf8().data(), subject.toUtf8().data(), &content->self);
     return rv;
 }
 

@@ -112,12 +112,12 @@ class MlmClient(object):
         """
         return utils.lib.mlm_client_remove_worker(self._p, utils.to_bytes(address), utils.to_bytes(pattern))
 
-    def send(self, subject, content):
+    def send(self, address, subject, content):
         """
         Send STREAM SEND message to server, takes ownership of message
         and destroys message when done sending it.
         """
-        return utils.lib.mlm_client_send(self._p, utils.to_bytes(subject), content._p)
+        return utils.lib.mlm_client_send(self._p, utils.to_bytes(address), utils.to_bytes(subject), content._p)
 
     def sendto(self, address, subject, tracker, timeout, content):
         """
@@ -190,12 +190,12 @@ class MlmClient(object):
         """
         return utils.lib.mlm_client_tracker(self._p)
 
-    def sendx(self, subject, content, ):
+    def sendx(self, address, subject, content, ):
         """
         Send multipart string message to stream, end list with NULL
         Returns 0 if OK, -1 if failed due to lack of memory or other error.
         """
-        return utils.lib.mlm_client_sendx(self._p, utils.to_bytes(subject), utils.to_bytes(content), )
+        return utils.lib.mlm_client_sendx(self._p, utils.to_bytes(address), utils.to_bytes(subject), utils.to_bytes(content), )
 
     def sendtox(self, address, subject, content, ):
         """
@@ -211,7 +211,7 @@ class MlmClient(object):
         """
         return utils.lib.mlm_client_sendforx(self._p, utils.to_bytes(address), utils.to_bytes(subject), utils.to_bytes(content), )
 
-    def recvx(self, subject_p, string_p, ):
+    def recvx(self, address_p, subject_p, string_p, ):
         """
         Receive a subject and string content from the server. The content may be
         1 or more string frames. This method is orthogonal to the sendx methods.
@@ -221,7 +221,7 @@ class MlmClient(object):
         subject and content strings when finished with them. To get the type of
         the command, use mlm_client_command ().
         """
-        return utils.lib.mlm_client_recvx(self._p, utils.to_bytes(subject_p), utils.to_bytes(string_p), )
+        return utils.lib.mlm_client_recvx(self._p, utils.to_bytes(address_p), utils.to_bytes(subject_p), utils.to_bytes(string_p), )
 
     def set_verbose(self, verbose):
         """

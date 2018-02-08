@@ -457,6 +457,14 @@ mlm_proto_t *
                 return NULL;
             }
             {
+            char *s = zconfig_get (content, "address", NULL);
+            if (!s) {
+                mlm_proto_destroy (&self);
+                return NULL;
+            }
+            strncpy (self->address, s, 256);
+            }
+            {
             char *s = zconfig_get (content, "subject", NULL);
             if (!s) {
                 mlm_proto_destroy (&self);
@@ -1148,6 +1156,7 @@ mlm_proto_recv (mlm_proto_t *self, zsock_t *input)
             break;
 
         case MLM_PROTO_STREAM_SEND:
+            GET_STRING (self->address);
             GET_STRING (self->subject);
             //  Get zero or more remaining frames
             zmsg_destroy (&self->content);
@@ -1300,6 +1309,7 @@ mlm_proto_send (mlm_proto_t *self, zsock_t *output)
             frame_size += 1 + strlen (self->pattern);
             break;
         case MLM_PROTO_STREAM_SEND:
+            frame_size += 1 + strlen (self->address);
             frame_size += 1 + strlen (self->subject);
             break;
         case MLM_PROTO_STREAM_DELIVER:
@@ -1386,6 +1396,7 @@ mlm_proto_send (mlm_proto_t *self, zsock_t *output)
             break;
 
         case MLM_PROTO_STREAM_SEND:
+            PUT_STRING (self->address);
             PUT_STRING (self->subject);
             nbr_frames += self->content? zmsg_size (self->content): 1;
             have_content = true;
@@ -1530,6 +1541,7 @@ mlm_proto_print (mlm_proto_t *self)
 
         case MLM_PROTO_STREAM_SEND:
             zsys_debug ("MLM_PROTO_STREAM_SEND:");
+            zsys_debug ("    address='%s'", self->address);
             zsys_debug ("    subject='%s'", self->subject);
             zsys_debug ("    content=");
             if (self->content)
@@ -1757,6 +1769,7 @@ mlm_proto_zpl (mlm_proto_t *self, zconfig_t *parent)
             }
 
             zconfig_t *config = zconfig_new ("content", root);
+            zconfig_putf (config, "address", "%s", self->address);
             zconfig_putf (config, "subject", "%s", self->subject);
             {
             char *hex = NULL;
@@ -2612,6 +2625,7 @@ mlm_proto_test (bool verbose)
     }
     mlm_proto_set_id (self, MLM_PROTO_STREAM_SEND);
 
+    mlm_proto_set_address (self, "Life is short but Now lasts for ever");
     mlm_proto_set_subject (self, "Life is short but Now lasts for ever");
     zmsg_t *stream_send_content = zmsg_new ();
     mlm_proto_set_content (self, &stream_send_content);
@@ -2635,6 +2649,7 @@ mlm_proto_test (bool verbose)
         }
         if (instance < 2)
             assert (mlm_proto_routing_id (self));
+        assert (streq (mlm_proto_address (self), "Life is short but Now lasts for ever"));
         assert (streq (mlm_proto_subject (self), "Life is short but Now lasts for ever"));
         assert (zmsg_size (mlm_proto_content (self)) == 1);
         char *content = zmsg_popstr (mlm_proto_content (self));

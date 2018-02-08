@@ -440,7 +440,7 @@ lib.mlm_client_set_worker.argtypes = [mlm_client_p, c_char_p, c_char_p]
 lib.mlm_client_remove_worker.restype = c_int
 lib.mlm_client_remove_worker.argtypes = [mlm_client_p, c_char_p, c_char_p]
 lib.mlm_client_send.restype = c_int
-lib.mlm_client_send.argtypes = [mlm_client_p, c_char_p, POINTER(czmq.zmsg_p)]
+lib.mlm_client_send.argtypes = [mlm_client_p, c_char_p, c_char_p, POINTER(czmq.zmsg_p)]
 lib.mlm_client_sendto.restype = c_int
 lib.mlm_client_sendto.argtypes = [mlm_client_p, c_char_p, c_char_p, c_char_p, c_int, POINTER(czmq.zmsg_p)]
 lib.mlm_client_sendfor.restype = c_int
@@ -464,13 +464,13 @@ lib.mlm_client_content.argtypes = [mlm_client_p]
 lib.mlm_client_tracker.restype = c_char_p
 lib.mlm_client_tracker.argtypes = [mlm_client_p]
 lib.mlm_client_sendx.restype = c_int
-lib.mlm_client_sendx.argtypes = [mlm_client_p, c_char_p, c_char_p]
+lib.mlm_client_sendx.argtypes = [mlm_client_p, c_char_p, c_char_p, c_char_p]
 lib.mlm_client_sendtox.restype = c_int
 lib.mlm_client_sendtox.argtypes = [mlm_client_p, c_char_p, c_char_p, c_char_p]
 lib.mlm_client_sendforx.restype = c_int
 lib.mlm_client_sendforx.argtypes = [mlm_client_p, c_char_p, c_char_p, c_char_p]
 lib.mlm_client_recvx.restype = c_int
-lib.mlm_client_recvx.argtypes = [mlm_client_p, POINTER(c_char_p), POINTER(c_char_p)]
+lib.mlm_client_recvx.argtypes = [mlm_client_p, POINTER(c_char_p), POINTER(c_char_p), POINTER(c_char_p)]
 lib.mlm_client_set_verbose.restype = None
 lib.mlm_client_set_verbose.argtypes = [mlm_client_p, c_bool]
 lib.mlm_client_test.restype = None
@@ -612,12 +612,12 @@ Returns >= 0 if successful, -1 if interrupted.
         """
         return lib.mlm_client_remove_worker(self._as_parameter_, address, pattern)
 
-    def send(self, subject, content):
+    def send(self, address, subject, content):
         """
         Send STREAM SEND message to server, takes ownership of message
 and destroys message when done sending it.
         """
-        return lib.mlm_client_send(self._as_parameter_, subject, byref(czmq.zmsg_p.from_param(content)))
+        return lib.mlm_client_send(self._as_parameter_, address, subject, byref(czmq.zmsg_p.from_param(content)))
 
     def sendto(self, address, subject, tracker, timeout, content):
         """
@@ -690,12 +690,12 @@ and destroys message when done sending it.
         """
         return lib.mlm_client_tracker(self._as_parameter_)
 
-    def sendx(self, subject, content, *args):
+    def sendx(self, address, subject, content, *args):
         """
         Send multipart string message to stream, end list with NULL
 Returns 0 if OK, -1 if failed due to lack of memory or other error.
         """
-        return lib.mlm_client_sendx(self._as_parameter_, subject, content, *args)
+        return lib.mlm_client_sendx(self._as_parameter_, address, subject, content, *args)
 
     def sendtox(self, address, subject, content, *args):
         """
@@ -711,7 +711,7 @@ Returns 0 if OK, -1 if failed due to lack of memory or other error.
         """
         return lib.mlm_client_sendforx(self._as_parameter_, address, subject, content, *args)
 
-    def recvx(self, subject_p, string_p, *args):
+    def recvx(self, address_p, subject_p, string_p, *args):
         """
         Receive a subject and string content from the server. The content may be
 1 or more string frames. This method is orthogonal to the sendx methods.
@@ -721,7 +721,7 @@ of string contents received, or -1 in case of error. Free the returned
 subject and content strings when finished with them. To get the type of
 the command, use mlm_client_command ().
         """
-        return lib.mlm_client_recvx(self._as_parameter_, byref(c_char_p.from_param(subject_p)), byref(c_char_p.from_param(string_p)), *args)
+        return lib.mlm_client_recvx(self._as_parameter_, byref(c_char_p.from_param(address_p)), byref(c_char_p.from_param(subject_p)), byref(c_char_p.from_param(string_p)), *args)
 
     def set_verbose(self, verbose):
         """
