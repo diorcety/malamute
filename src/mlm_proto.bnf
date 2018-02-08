@@ -17,6 +17,7 @@ The following ABNF grammar defines the The Malamute Protocol:
 
     service-traffic = C:SERVICE-SEND ( S:OK [ S:CONFIRM ] / S:ERROR )
                     / C:SERVICE-OFFER
+                    / C:SERVICE-CANCEL
                     / S:SERVICE-DELIVER [ C:CONFIRM ]
 
     credit = C:CREDIT
@@ -67,11 +68,12 @@ The following ABNF grammar defines the The Malamute Protocol:
     stream          = string                ; Name of stream
     pattern         = string                ; Match message subjects
 
-    ;  Cancels and removes all subscriptions to a stream . Server replies
-    ;  with OK or ERROR.
+    ;  Cancels and removes subscriptions to a stream. Server replies with OK
+    ;  or ERROR.
 
-    STREAM-CANCEL   = signature %d7 stream
+    STREAM-CANCEL   = signature %d7 stream pattern
     stream          = string                ; Name of stream
+    pattern         = string                ; Match message subjects
 
     ;  Client publishes a message to the current stream. A stream message has
     ;  a subject, and a content of zero or more frames. Server does not reply
@@ -144,12 +146,19 @@ The following ABNF grammar defines the The Malamute Protocol:
     address         = string                ; Service address
     pattern         = string                ; Match message subjects
 
+    ;  Cancels and removes offers for a named service. Server replies with OK
+    ;  or ERROR.
+
+    SERVICE-CANCEL  = signature %d14 address pattern
+    address         = string                ; Service address
+    pattern         = string                ; Match message subjects
+
     ;  Server delivers a service request to a worker client. If tracker is
     ;  not empty, worker must respond with CONFIRM when it accepts delivery
     ;  of the message. The worker sends replies to the request to the
     ;  requesting client's mailbox.
 
-    SERVICE-DELIVER = signature %d14 sender address subject tracker content
+    SERVICE-DELIVER = signature %d15 sender address subject tracker content
     sender          = string                ; Sending client address
     address         = string                ; Service address
     subject         = string                ; Message subject
@@ -159,7 +168,7 @@ The following ABNF grammar defines the The Malamute Protocol:
     ;  Server replies with success status. Actual status code provides more
     ;  information. An OK always has a 2xx status code.
 
-    OK              = signature %d15 status
+    OK              = signature %d16 status
     status          = status                ;
     status          = code reason
     code            = number-2              ; 3-digit status code
@@ -168,7 +177,7 @@ The following ABNF grammar defines the The Malamute Protocol:
     ;  Server replies with failure status. Actual status code provides more
     ;  information. An ERROR always has a 3xx, 4xx, or 5xx status code.
 
-    ERROR           = signature %d16 status
+    ERROR           = signature %d17 status
     status          = status                ;
 
     ;  Client sends credit to allow delivery of messages. Until the client
@@ -177,14 +186,14 @@ The following ABNF grammar defines the The Malamute Protocol:
     ;  messages. Server does not reply to this message. Note that credit
     ;  applies to all stream, mailbox, and service deliveries.
 
-    CREDIT          = signature %d17 amount
+    CREDIT          = signature %d18 amount
     amount          = number-2              ; Number of messages
 
     ;  Client confirms reception of a message, or server forwards this
     ;  confirmation to original sender. If status code is 300 or higher, this
     ;  indicates that the message could not be delivered.
 
-    CONFIRM         = signature %d18 tracker status
+    CONFIRM         = signature %d19 tracker status
     tracker         = string                ; Message tracker
     status          = status                ;
 

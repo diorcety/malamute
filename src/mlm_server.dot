@@ -70,6 +70,9 @@ digraph "mlm_server" {
  "connected service offer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">service offer</font></td></tr><tr><td align="left" port="r3">store service offer</td></tr><tr><td align="left" port="r3">send</td></tr><tr><td align="left" port="r3">dispatch the service</td></tr></table>>];
  "connected" -> "connected service offer";
  "connected service offer" -> "connected";
+ "connected service cancel" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">service cancel</font></td></tr><tr><td align="left" port="r3">cancel service offer</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "connected" -> "connected service cancel";
+ "connected service cancel" -> "connected";
  "connected confirm" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">confirm</font></td></tr><tr><td align="left" port="r3">have message confirmation</td></tr></table>>];
  "connected" -> "connected confirm";
  "connected confirm" -> "connected";

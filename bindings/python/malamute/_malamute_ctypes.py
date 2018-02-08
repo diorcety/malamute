@@ -151,11 +151,12 @@ class MlmProto(object):
     MAILBOX_DELIVER = 11 #
     SERVICE_SEND = 12 #
     SERVICE_OFFER = 13 #
-    SERVICE_DELIVER = 14 #
-    OK = 15 #
-    ERROR = 16 #
-    CREDIT = 17 #
-    CONFIRM = 18 #
+    SERVICE_CANCEL = 14 #
+    SERVICE_DELIVER = 15 #
+    OK = 16 #
+    ERROR = 17 #
+    CREDIT = 18 #
+    CONFIRM = 19 #
     allow_destruct = False
     def __init__(self, *args):
         """
@@ -433,9 +434,11 @@ lib.mlm_client_set_producer.argtypes = [mlm_client_p, c_char_p]
 lib.mlm_client_set_consumer.restype = c_int
 lib.mlm_client_set_consumer.argtypes = [mlm_client_p, c_char_p, c_char_p]
 lib.mlm_client_remove_consumer.restype = c_int
-lib.mlm_client_remove_consumer.argtypes = [mlm_client_p, c_char_p]
+lib.mlm_client_remove_consumer.argtypes = [mlm_client_p, c_char_p, c_char_p]
 lib.mlm_client_set_worker.restype = c_int
 lib.mlm_client_set_worker.argtypes = [mlm_client_p, c_char_p, c_char_p]
+lib.mlm_client_remove_worker.restype = c_int
+lib.mlm_client_remove_worker.argtypes = [mlm_client_p, c_char_p, c_char_p]
 lib.mlm_client_send.restype = c_int
 lib.mlm_client_send.argtypes = [mlm_client_p, c_char_p, POINTER(czmq.zmsg_p)]
 lib.mlm_client_sendto.restype = c_int
@@ -587,12 +590,12 @@ Returns >= 0 if successful, -1 if interrupted.
         """
         return lib.mlm_client_set_consumer(self._as_parameter_, stream, pattern)
 
-    def remove_consumer(self, stream):
+    def remove_consumer(self, stream, pattern):
         """
-        Remove all subscriptions to a stream
+        Remove subscriptions to a stream.
 Returns >= 0 if successful, -1 if interrupted.
         """
-        return lib.mlm_client_remove_consumer(self._as_parameter_, stream)
+        return lib.mlm_client_remove_consumer(self._as_parameter_, stream, pattern)
 
     def set_worker(self, address, pattern):
         """
@@ -601,6 +604,13 @@ using the CZMQ zrex syntax.
 Returns >= 0 if successful, -1 if interrupted.
         """
         return lib.mlm_client_set_worker(self._as_parameter_, address, pattern)
+
+    def remove_worker(self, address, pattern):
+        """
+        Remove offers for named service.
+Returns >= 0 if successful, -1 if interrupted.
+        """
+        return lib.mlm_client_remove_worker(self._as_parameter_, address, pattern)
 
     def send(self, subject, content):
         """

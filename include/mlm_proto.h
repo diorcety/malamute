@@ -40,11 +40,12 @@ extern "C" {
 #define MLM_PROTO_MAILBOX_DELIVER 11        //
 #define MLM_PROTO_SERVICE_SEND 12           //
 #define MLM_PROTO_SERVICE_OFFER 13          //
-#define MLM_PROTO_SERVICE_DELIVER 14        //
-#define MLM_PROTO_OK 15                     //
-#define MLM_PROTO_ERROR 16                  //
-#define MLM_PROTO_CREDIT 17                 //
-#define MLM_PROTO_CONFIRM 18                //
+#define MLM_PROTO_SERVICE_CANCEL 14         //
+#define MLM_PROTO_SERVICE_DELIVER 15        //
+#define MLM_PROTO_OK 16                     //
+#define MLM_PROTO_ERROR 17                  //
+#define MLM_PROTO_CREDIT 18                 //
+#define MLM_PROTO_CONFIRM 19                //
 
 //  Create a new empty mlm_proto
 MLM_EXPORT mlm_proto_t *

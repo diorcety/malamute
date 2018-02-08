@@ -64,19 +64,22 @@ module Malamute
       SERVICE_OFFER = 13
 
       #
-      SERVICE_DELIVER = 14
+      SERVICE_CANCEL = 14
 
       #
-      OK = 15
+      SERVICE_DELIVER = 15
 
       #
-      ERROR = 16
+      OK = 16
 
       #
-      CREDIT = 17
+      ERROR = 17
 
       #
-      CONFIRM = 18
+      CREDIT = 18
+
+      #
+      CONFIRM = 19
 
       # Raised when one tries to use an instance of {MlmProto} after
       # the internal pointer to the native object has been nullified.

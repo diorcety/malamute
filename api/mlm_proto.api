@@ -38,11 +38,12 @@
     <constant name = "mailbox_deliver" value = "11" />
     <constant name = "service_send" value = "12" />
     <constant name = "service_offer" value = "13" />
-    <constant name = "service_deliver" value = "14" />
-    <constant name = "ok" value = "15" />
-    <constant name = "error" value = "16" />
-    <constant name = "credit" value = "17" />
-    <constant name = "confirm" value = "18" />
+    <constant name = "service_cancel" value = "14" />
+    <constant name = "service_deliver" value = "15" />
+    <constant name = "ok" value = "16" />
+    <constant name = "error" value = "17" />
+    <constant name = "credit" value = "18" />
+    <constant name = "confirm" value = "19" />
 
 <constructor>
     Create a new empty mlm_proto

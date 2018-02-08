@@ -46,16 +46,17 @@ typedef enum {
     mailbox_send_event = 7,
     service_send_event = 8,
     service_offer_event = 9,
-    confirm_event = 10,
-    credit_event = 11,
-    connection_ping_event = 12,
-    connection_close_event = 13,
-    stream_message_event = 14,
-    mailbox_message_event = 15,
-    service_message_event = 16,
-    expired_event = 17,
-    exception_event = 18,
-    settled_event = 19
+    service_cancel_event = 10,
+    confirm_event = 11,
+    credit_event = 12,
+    connection_ping_event = 13,
+    connection_close_event = 14,
+    stream_message_event = 15,
+    mailbox_message_event = 16,
+    service_message_event = 17,
+    expired_event = 18,
+    exception_event = 19,
+    settled_event = 20
 } event_t;
 
 //  Names for state machine logging and error reporting
@@ -80,6 +81,7 @@ s_event_name [] = {
     "MAILBOX_SEND",
     "SERVICE_SEND",
     "SERVICE_OFFER",
+    "SERVICE_CANCEL",
     "CONFIRM",
     "CREDIT",
     "CONNECTION_PING",
@@ -176,6 +178,8 @@ static void
     store_service_offer (client_t *self);
 static void
     dispatch_the_service (client_t *self);
+static void
+    cancel_service_offer (client_t *self);
 static void
     have_message_confirmation (client_t *self);
 static void
@@ -423,6 +427,9 @@ s_protocol_event (mlm_proto_t *message)
             break;
         case MLM_PROTO_SERVICE_OFFER:
             return service_offer_event;
+            break;
+        case MLM_PROTO_SERVICE_CANCEL:
+            return service_cancel_event;
             break;
         case MLM_PROTO_CREDIT:
             return credit_event;
@@ -825,6 +832,24 @@ s_client_execute (s_client_t *self, event_t event)
                         if (self->server->verbose)
                             zsys_debug ("%s:         $ dispatch the service", self->log_prefix);
                         dispatch_the_service (&self->client);
+                    }
+                }
+                else
+                if (self->event == service_cancel_event) {
+                    if (!self->exception) {
+                        //  cancel service offer
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ cancel service offer", self->log_prefix);
+                        cancel_service_offer (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send OK
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ send OK",
+                                self->log_prefix);
+                        mlm_proto_set_id (self->server->message, MLM_PROTO_OK);
+                        mlm_proto_set_routing_id (self->server->message, self->routing_id);
+                        mlm_proto_send (self->server->message, self->server->router);
                     }
                 }
                 else
