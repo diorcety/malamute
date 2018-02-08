@@ -233,7 +233,7 @@ Java_org_zeromq_mlm_MlmClient__1_1sendx (JNIEnv *env, jclass c, jlong self, jstr
     char *address_ = (char *) (*env)->GetStringUTFChars (env, address, NULL);
     char *subject_ = (char *) (*env)->GetStringUTFChars (env, subject, NULL);
     char *content_ = (char *) (*env)->GetStringUTFChars (env, content, NULL);
-    jint sendx_ = (jint) mlm_client_sendx ((mlm_client_t *) (intptr_t) self, address_, subject_, content_);
+    jint sendx_ = (jint) mlm_client_sendx ((mlm_client_t *) (intptr_t) self, address_, subject_, content_, NULL);
     (*env)->ReleaseStringUTFChars (env, address, address_);
     (*env)->ReleaseStringUTFChars (env, subject, subject_);
     (*env)->ReleaseStringUTFChars (env, content, content_);
@@ -246,7 +246,7 @@ Java_org_zeromq_mlm_MlmClient__1_1sendtox (JNIEnv *env, jclass c, jlong self, js
     char *address_ = (char *) (*env)->GetStringUTFChars (env, address, NULL);
     char *subject_ = (char *) (*env)->GetStringUTFChars (env, subject, NULL);
     char *content_ = (char *) (*env)->GetStringUTFChars (env, content, NULL);
-    jint sendtox_ = (jint) mlm_client_sendtox ((mlm_client_t *) (intptr_t) self, address_, subject_, content_);
+    jint sendtox_ = (jint) mlm_client_sendtox ((mlm_client_t *) (intptr_t) self, address_, subject_, content_, NULL);
     (*env)->ReleaseStringUTFChars (env, address, address_);
     (*env)->ReleaseStringUTFChars (env, subject, subject_);
     (*env)->ReleaseStringUTFChars (env, content, content_);
@@ -259,7 +259,7 @@ Java_org_zeromq_mlm_MlmClient__1_1sendforx (JNIEnv *env, jclass c, jlong self, j
     char *address_ = (char *) (*env)->GetStringUTFChars (env, address, NULL);
     char *subject_ = (char *) (*env)->GetStringUTFChars (env, subject, NULL);
     char *content_ = (char *) (*env)->GetStringUTFChars (env, content, NULL);
-    jint sendforx_ = (jint) mlm_client_sendforx ((mlm_client_t *) (intptr_t) self, address_, subject_, content_);
+    jint sendforx_ = (jint) mlm_client_sendforx ((mlm_client_t *) (intptr_t) self, address_, subject_, content_, NULL);
     (*env)->ReleaseStringUTFChars (env, address, address_);
     (*env)->ReleaseStringUTFChars (env, subject, subject_);
     (*env)->ReleaseStringUTFChars (env, content, content_);

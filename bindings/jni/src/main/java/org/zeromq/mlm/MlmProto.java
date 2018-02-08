@@ -8,15 +8,9 @@ package org.zeromq.mlm;
 import org.zeromq.czmq.*;
 
 public class MlmProto implements AutoCloseable{
-    static {
-        try {
-            System.loadLibrary ("mlmjni");
-        }
-        catch (Exception e) {
-            System.exit (-1);
-        }
-    }
+
     public long self;
+
     /*
     Create a new empty mlm_proto
     */
@@ -44,6 +38,7 @@ public class MlmProto implements AutoCloseable{
         __destroy (self);
         self = 0;
     }
+
     /*
     Create a deep copy of a mlm_proto instance
     */

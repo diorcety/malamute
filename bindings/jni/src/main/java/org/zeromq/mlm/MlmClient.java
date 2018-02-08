@@ -8,15 +8,9 @@ package org.zeromq.mlm;
 import org.zeromq.czmq.*;
 
 public class MlmClient implements AutoCloseable{
-    static {
-        try {
-            System.loadLibrary ("mlmjni");
-        }
-        catch (Exception e) {
-            System.exit (-1);
-        }
-    }
+
     public long self;
+
     /*
     Create a new mlm_client, return the reference if successful,
     or NULL if construction failed due to lack of available memory.
@@ -38,6 +32,7 @@ public class MlmClient implements AutoCloseable{
         __destroy (self);
         self = 0;
     }
+
     /*
     Return actor, when caller wants to work with multiple actors and/or
     input sockets asynchronously.
