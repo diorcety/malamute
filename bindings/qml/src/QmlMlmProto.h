@@ -18,18 +18,21 @@ class QmlMlmProto : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool isNULL READ isNULL)
-    
+
 public:
     mlm_proto_t *self;
-    
+
     QmlMlmProto() { self = NULL; }
     bool isNULL() { return self == NULL; }
-    
+
     static QObject* qmlAttachedProperties(QObject* object); // defined in QmlMlmProto.cpp
-    
+
 public slots:
+    //  Create a deep copy of a mlm_proto instance
+    QmlMlmProto *dup ();
+
     //  Receive a mlm_proto from the socket. Returns 0 if OK, -1 if
-    //  there was an error. Blocks if there is no message waiting. 
+    //  there was an error. Blocks if there is no message waiting.
     int recv (zsock_t *input);
 
     //  Send the mlm_proto to the output socket, does not destroy it
@@ -37,6 +40,9 @@ public slots:
 
     //  Print contents of message to stdout
     void print ();
+
+    //  Export class as zconfig_t*. Caller is responsibe for destroying the instance
+    zconfig_t *zpl (zconfig_t *parent);
 
     //  Get the message routing id, as a frame
     zframe_t *routingId ();
@@ -83,7 +89,7 @@ public slots:
     //  Get the content field and transfer ownership to caller
     zmsg_t *getContent ();
 
-    //  
+    //
     void setContent (zmsg_t **contentP);
 
     //  Get the sender field
@@ -127,18 +133,21 @@ class QmlMlmProtoAttached : public QObject
 {
     Q_OBJECT
     QObject* m_attached;
-    
+
 public:
     QmlMlmProtoAttached (QObject* attached) {
         Q_UNUSED (attached);
     };
-    
+
 public slots:
     //  Self test of this class.
     void test (bool verbose);
 
     //  Create a new empty mlm_proto
     QmlMlmProto *construct ();
+
+    //  Create a new mlm_proto from zpl/zconfig_t *
+    QmlMlmProto *constructZpl (zconfig_t *config);
 
     //  Destroy a mlm_proto instance
     void destruct (QmlMlmProto *qmlSelf);

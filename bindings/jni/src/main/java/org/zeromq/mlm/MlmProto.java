@@ -29,6 +29,13 @@ public class MlmProto implements AutoCloseable{
         self = pointer;
     }
     /*
+    Create a new mlm_proto from zpl/zconfig_t *
+    */
+    native static long __newZpl (long config);
+    public static MlmProto newZpl (Zconfig config) {
+        return new MlmProto (__newZpl (config.self));
+    }
+    /*
     Destroy a mlm_proto instance
     */
     native static void __destroy (long self);
@@ -36,6 +43,13 @@ public class MlmProto implements AutoCloseable{
     public void close () {
         __destroy (self);
         self = 0;
+    }
+    /*
+    Create a deep copy of a mlm_proto instance
+    */
+    native static long __dup (long self);
+    public MlmProto dup () {
+        return new MlmProto (__dup (self));
     }
     /*
     Receive a mlm_proto from the socket. Returns 0 if OK, -1 if
@@ -58,6 +72,13 @@ public class MlmProto implements AutoCloseable{
     native static void __print (long self);
     public void print () {
         __print (self);
+    }
+    /*
+    Export class as zconfig_t*. Caller is responsibe for destroying the instance
+    */
+    native static long __zpl (long self, long parent);
+    public Zconfig zpl (Zconfig parent) {
+        return new Zconfig (__zpl (self, parent.self));
     }
     /*
     Get the message routing id, as a frame

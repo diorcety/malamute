@@ -19,10 +19,24 @@ Java_org_zeromq_mlm_MlmProto__1_1new (JNIEnv *env, jclass c)
     return new_;
 }
 
+JNIEXPORT jlong JNICALL
+Java_org_zeromq_mlm_MlmProto__1_1newZpl (JNIEnv *env, jclass c, jlong config)
+{
+    jlong new_zpl_ = (jlong) (intptr_t) mlm_proto_new_zpl ((zconfig_t *) (intptr_t) config);
+    return new_zpl_;
+}
+
 JNIEXPORT void JNICALL
 Java_org_zeromq_mlm_MlmProto__1_1destroy (JNIEnv *env, jclass c, jlong self)
 {
     mlm_proto_destroy ((mlm_proto_t **) &self);
+}
+
+JNIEXPORT jlong JNICALL
+Java_org_zeromq_mlm_MlmProto__1_1dup (JNIEnv *env, jclass c, jlong self)
+{
+    jlong dup_ = (jlong) (intptr_t) mlm_proto_dup ((mlm_proto_t *) (intptr_t) self);
+    return dup_;
 }
 
 JNIEXPORT jint JNICALL
@@ -43,6 +57,13 @@ JNIEXPORT void JNICALL
 Java_org_zeromq_mlm_MlmProto__1_1print (JNIEnv *env, jclass c, jlong self)
 {
     mlm_proto_print ((mlm_proto_t *) (intptr_t) self);
+}
+
+JNIEXPORT jlong JNICALL
+Java_org_zeromq_mlm_MlmProto__1_1zpl (JNIEnv *env, jclass c, jlong self, jlong parent)
+{
+    jlong zpl_ = (jlong) (intptr_t) mlm_proto_zpl ((mlm_proto_t *) (intptr_t) self, (zconfig_t *) (intptr_t) parent);
+    return zpl_;
 }
 
 JNIEXPORT jlong JNICALL

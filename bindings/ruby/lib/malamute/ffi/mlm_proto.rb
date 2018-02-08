@@ -43,37 +43,40 @@ module Malamute
       STREAM_READ = 6
 
       #
-      STREAM_SEND = 7
+      STREAM_CANCEL = 7
 
       #
-      STREAM_DELIVER = 8
+      STREAM_SEND = 8
 
       #
-      MAILBOX_SEND = 9
+      STREAM_DELIVER = 9
 
       #
-      MAILBOX_DELIVER = 10
+      MAILBOX_SEND = 10
 
       #
-      SERVICE_SEND = 11
+      MAILBOX_DELIVER = 11
 
       #
-      SERVICE_OFFER = 12
+      SERVICE_SEND = 12
 
       #
-      SERVICE_DELIVER = 13
+      SERVICE_OFFER = 13
 
       #
-      OK = 14
+      SERVICE_DELIVER = 14
 
       #
-      ERROR = 15
+      OK = 15
 
       #
-      CREDIT = 16
+      ERROR = 16
 
       #
-      CONFIRM = 17
+      CREDIT = 17
+
+      #
+      CONFIRM = 18
 
       # Raised when one tries to use an instance of {MlmProto} after
       # the internal pointer to the native object has been nullified.
@@ -146,6 +149,14 @@ module Malamute
         __new ptr
       end
 
+      # Create a new mlm_proto from zpl/zconfig_t *
+      # @param config [::FFI::Pointer, #to_ptr]
+      # @return [Malamute::MlmProto]
+      def self.new_zpl(config)
+        ptr = ::Malamute::FFI.mlm_proto_new_zpl(config)
+        __new ptr
+      end
+
       # Destroy a mlm_proto instance
       #
       # @return [void]
@@ -153,6 +164,17 @@ module Malamute
         return unless @ptr
         self_p = __ptr_give_ref
         result = ::Malamute::FFI.mlm_proto_destroy(self_p)
+        result
+      end
+
+      # Create a deep copy of a mlm_proto instance
+      #
+      # @return [MlmProto]
+      def dup()
+        raise DestroyedError unless @ptr
+        self_p = @ptr
+        result = ::Malamute::FFI.mlm_proto_dup(self_p)
+        result = MlmProto.__new result, true
         result
       end
 
@@ -186,6 +208,17 @@ module Malamute
         raise DestroyedError unless @ptr
         self_p = @ptr
         result = ::Malamute::FFI.mlm_proto_print(self_p)
+        result
+      end
+
+      # Export class as zconfig_t*. Caller is responsibe for destroying the instance
+      #
+      # @param parent [::FFI::Pointer, #to_ptr]
+      # @return [::FFI::Pointer]
+      def zpl(parent)
+        raise DestroyedError unless @ptr
+        self_p = @ptr
+        result = ::Malamute::FFI.mlm_proto_zpl(self_p, parent)
         result
       end
 

@@ -16,7 +16,7 @@ QMlmClient::QMlmClient (mlm_client_t *self, QObject *qObjParent) : QObject (qObj
 
 
 ///
-//  Create a new mlm_client, return the reference if successful,   
+//  Create a new mlm_client, return the reference if successful,
 //  or NULL if construction failed due to lack of available memory.
 QMlmClient::QMlmClient (QObject *qObjParent) : QObject (qObjParent)
 {
@@ -32,7 +32,7 @@ QMlmClient::~QMlmClient ()
 
 ///
 //  Return actor, when caller wants to work with multiple actors and/or
-//  input sockets asynchronously.                                      
+//  input sockets asynchronously.
 QZactor * QMlmClient::actor ()
 {
     QZactor *rv = new QZactor (mlm_client_actor (self));
@@ -42,9 +42,9 @@ QZactor * QMlmClient::actor ()
 ///
 //  Return message pipe for asynchronous message I/O. In the high-volume case,
 //  we send methods and get replies to the actor, in a synchronous manner, and
-//  we send/recv high volume message data to a second pipe, the msgpipe. In   
-//  the low-volume case we can do everything over the actor pipe, if traffic  
-//  is never ambiguous.                                                       
+//  we send/recv high volume message data to a second pipe, the msgpipe. In
+//  the low-volume case we can do everything over the actor pipe, if traffic
+//  is never ambiguous.
 QZsock * QMlmClient::msgpipe ()
 {
     QZsock *rv = new QZsock (mlm_client_msgpipe (self));
@@ -52,9 +52,9 @@ QZsock * QMlmClient::msgpipe ()
 }
 
 ///
-//  Return true if client is currently connected, else false. Note that the   
+//  Return true if client is currently connected, else false. Note that the
 //  client will automatically re-connect if the server dies and restarts after
-//  a successful first connection.                                            
+//  a successful first connection.
 bool QMlmClient::connected ()
 {
     bool rv = mlm_client_connected (self);
@@ -62,9 +62,9 @@ bool QMlmClient::connected ()
 }
 
 ///
-//  Set PLAIN authentication username and password. If you do not call this, the    
-//  client will use NULL authentication. TODO: add "set curve auth".                
-//  Returns >= 0 if successful, -1 if interrupted.                                  
+//  Set PLAIN authentication username and password. If you do not call this, the
+//  client will use NULL authentication. TODO: add "set curve auth".
+//  Returns >= 0 if successful, -1 if interrupted.
 int QMlmClient::setPlainAuth (const QString &username, const QString &password)
 {
     int rv = mlm_client_set_plain_auth (self, username.toUtf8().data(), password.toUtf8().data());
@@ -72,10 +72,10 @@ int QMlmClient::setPlainAuth (const QString &username, const QString &password)
 }
 
 ///
-//  Connect to server endpoint, with specified timeout in msecs (zero means wait    
-//  forever). Constructor succeeds if connection is successful. The caller may      
-//  specify its address.                                                            
-//  Returns >= 0 if successful, -1 if interrupted.                                  
+//  Connect to server endpoint, with specified timeout in msecs (zero means wait
+//  forever). Constructor succeeds if connection is successful. The caller may
+//  specify its address.
+//  Returns >= 0 if successful, -1 if interrupted.
 int QMlmClient::connect (const QString &endpoint, quint32 timeout, const QString &address)
 {
     int rv = mlm_client_connect (self, endpoint.toUtf8().data(), (uint32_t) timeout, address.toUtf8().data());
@@ -83,9 +83,9 @@ int QMlmClient::connect (const QString &endpoint, quint32 timeout, const QString
 }
 
 ///
-//  Prepare to publish to a specified stream. After this, all messages are sent to  
-//  this stream exclusively.                                                        
-//  Returns >= 0 if successful, -1 if interrupted.                                  
+//  Prepare to publish to a specified stream. After this, all messages are sent to
+//  this stream exclusively.
+//  Returns >= 0 if successful, -1 if interrupted.
 int QMlmClient::setProducer (const QString &stream)
 {
     int rv = mlm_client_set_producer (self, stream.toUtf8().data());
@@ -93,14 +93,14 @@ int QMlmClient::setProducer (const QString &stream)
 }
 
 ///
-//  Consume messages with matching subjects. The pattern is a regular expression    
-//  using the CZMQ zrex syntax. The most useful elements are: ^ and $ to match the  
-//  start and end, . to match any character, \s and \S to match whitespace and      
-//  non-whitespace, \d and \D to match a digit and non-digit, \a and \A to match    
-//  alphabetic and non-alphabetic, \w and \W to match alphanumeric and              
+//  Consume messages with matching subjects. The pattern is a regular expression
+//  using the CZMQ zrex syntax. The most useful elements are: ^ and $ to match the
+//  start and end, . to match any character, \s and \S to match whitespace and
+//  non-whitespace, \d and \D to match a digit and non-digit, \a and \A to match
+//  alphabetic and non-alphabetic, \w and \W to match alphanumeric and
 //  non-alphanumeric, + for one or more repetitions, * for zero or more repetitions,
-//  and ( ) to create groups. Returns 0 if subscription was successful, else -1.    
-//  Returns >= 0 if successful, -1 if interrupted.                                  
+//  and ( ) to create groups. Returns 0 if subscription was successful, else -1.
+//  Returns >= 0 if successful, -1 if interrupted.
 int QMlmClient::setConsumer (const QString &stream, const QString &pattern)
 {
     int rv = mlm_client_set_consumer (self, stream.toUtf8().data(), pattern.toUtf8().data());
@@ -108,9 +108,18 @@ int QMlmClient::setConsumer (const QString &stream, const QString &pattern)
 }
 
 ///
-//  Offer a particular named service, where the pattern matches request subjects    
-//  using the CZMQ zrex syntax.                                                     
-//  Returns >= 0 if successful, -1 if interrupted.                                  
+//  Remove all subscriptions to a stream
+//  Returns >= 0 if successful, -1 if interrupted.
+int QMlmClient::removeConsumer (const QString &stream)
+{
+    int rv = mlm_client_remove_consumer (self, stream.toUtf8().data());
+    return rv;
+}
+
+///
+//  Offer a particular named service, where the pattern matches request subjects
+//  using the CZMQ zrex syntax.
+//  Returns >= 0 if successful, -1 if interrupted.
 int QMlmClient::setWorker (const QString &address, const QString &pattern)
 {
     int rv = mlm_client_set_worker (self, address.toUtf8().data(), pattern.toUtf8().data());
@@ -119,7 +128,7 @@ int QMlmClient::setWorker (const QString &address, const QString &pattern)
 
 ///
 //  Send STREAM SEND message to server, takes ownership of message
-//  and destroys message when done sending it.                    
+//  and destroys message when done sending it.
 int QMlmClient::send (const QString &subject, QZmsg *content)
 {
     int rv = mlm_client_send (self, subject.toUtf8().data(), &content->self);
@@ -128,7 +137,7 @@ int QMlmClient::send (const QString &subject, QZmsg *content)
 
 ///
 //  Send MAILBOX SEND message to server, takes ownership of message
-//  and destroys message when done sending it.                     
+//  and destroys message when done sending it.
 int QMlmClient::sendto (const QString &address, const QString &subject, const QString &tracker, quint32 timeout, QZmsg *content)
 {
     int rv = mlm_client_sendto (self, address.toUtf8().data(), subject.toUtf8().data(), tracker.toUtf8().data(), (uint32_t) timeout, &content->self);
@@ -137,7 +146,7 @@ int QMlmClient::sendto (const QString &address, const QString &subject, const QS
 
 ///
 //  Send SERVICE SEND message to server, takes ownership of message
-//  and destroys message when done sending it.                     
+//  and destroys message when done sending it.
 int QMlmClient::sendfor (const QString &address, const QString &subject, const QString &tracker, quint32 timeout, QZmsg *content)
 {
     int rv = mlm_client_sendfor (self, address.toUtf8().data(), subject.toUtf8().data(), tracker.toUtf8().data(), (uint32_t) timeout, &content->self);
@@ -154,9 +163,9 @@ QZmsg * QMlmClient::recv ()
 
 ///
 //  Return last received command. Can be one of these values:
-//      "STREAM DELIVER"                                     
-//      "MAILBOX DELIVER"                                    
-//      "SERVICE DELIVER"                                    
+//      "STREAM DELIVER"
+//      "MAILBOX DELIVER"
+//      "SERVICE DELIVER"
 const QString QMlmClient::command ()
 {
     const QString rv = QString (mlm_client_command (self));
@@ -224,7 +233,7 @@ const QString QMlmClient::tracker ()
 void QMlmClient::setVerbose (bool verbose)
 {
     mlm_client_set_verbose (self, verbose);
-    
+
 }
 
 ///
@@ -232,7 +241,7 @@ void QMlmClient::setVerbose (bool verbose)
 void QMlmClient::test (bool verbose)
 {
     mlm_client_test (verbose);
-    
+
 }
 /*
 ################################################################################

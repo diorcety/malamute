@@ -57,12 +57,18 @@ lib.mlm_proto_new.restype = mlm_proto_p
 lib.mlm_proto_new.argtypes = []
 lib.mlm_proto_destroy.restype = None
 lib.mlm_proto_destroy.argtypes = [POINTER(mlm_proto_p)]
+lib.mlm_proto_new_zpl.restype = mlm_proto_p
+lib.mlm_proto_new_zpl.argtypes = [czmq.zconfig_p]
+lib.mlm_proto_dup.restype = mlm_proto_p
+lib.mlm_proto_dup.argtypes = [mlm_proto_p]
 lib.mlm_proto_recv.restype = c_int
 lib.mlm_proto_recv.argtypes = [mlm_proto_p, czmq.zsock_p]
 lib.mlm_proto_send.restype = c_int
 lib.mlm_proto_send.argtypes = [mlm_proto_p, czmq.zsock_p]
 lib.mlm_proto_print.restype = None
 lib.mlm_proto_print.argtypes = [mlm_proto_p]
+lib.mlm_proto_zpl.restype = czmq.zconfig_p
+lib.mlm_proto_zpl.argtypes = [mlm_proto_p, czmq.zconfig_p]
 lib.mlm_proto_routing_id.restype = czmq.zframe_p
 lib.mlm_proto_routing_id.argtypes = [mlm_proto_p]
 lib.mlm_proto_set_routing_id.restype = None
@@ -138,17 +144,18 @@ class MlmProto(object):
     CONNECTION_CLOSE = 4 #
     STREAM_WRITE = 5 #
     STREAM_READ = 6 #
-    STREAM_SEND = 7 #
-    STREAM_DELIVER = 8 #
-    MAILBOX_SEND = 9 #
-    MAILBOX_DELIVER = 10 #
-    SERVICE_SEND = 11 #
-    SERVICE_OFFER = 12 #
-    SERVICE_DELIVER = 13 #
-    OK = 14 #
-    ERROR = 15 #
-    CREDIT = 16 #
-    CONFIRM = 17 #
+    STREAM_CANCEL = 7 #
+    STREAM_SEND = 8 #
+    STREAM_DELIVER = 9 #
+    MAILBOX_SEND = 10 #
+    MAILBOX_DELIVER = 11 #
+    SERVICE_SEND = 12 #
+    SERVICE_OFFER = 13 #
+    SERVICE_DELIVER = 14 #
+    OK = 15 #
+    ERROR = 16 #
+    CREDIT = 17 #
+    CONFIRM = 18 #
     allow_destruct = False
     def __init__(self, *args):
         """
@@ -192,6 +199,19 @@ class MlmProto(object):
         "Determine whether the object is valid by converting to boolean" # Python 2
         return self._as_parameter_.__nonzero__()
 
+    @staticmethod
+    def new_zpl(config):
+        """
+        Create a new mlm_proto from zpl/zconfig_t *
+        """
+        return MlmProto(lib.mlm_proto_new_zpl(config), True)
+
+    def dup(self):
+        """
+        Create a deep copy of a mlm_proto instance
+        """
+        return MlmProto(lib.mlm_proto_dup(self._as_parameter_), True)
+
     def recv(self, input):
         """
         Receive a mlm_proto from the socket. Returns 0 if OK, -1 if
@@ -210,6 +230,12 @@ there was an error. Blocks if there is no message waiting.
         Print contents of message to stdout
         """
         return lib.mlm_proto_print(self._as_parameter_)
+
+    def zpl(self, parent):
+        """
+        Export class as zconfig_t*. Caller is responsibe for destroying the instance
+        """
+        return czmq.Zconfig(lib.mlm_proto_zpl(self._as_parameter_, parent), True)
 
     def routing_id(self):
         """
@@ -406,6 +432,8 @@ lib.mlm_client_set_producer.restype = c_int
 lib.mlm_client_set_producer.argtypes = [mlm_client_p, c_char_p]
 lib.mlm_client_set_consumer.restype = c_int
 lib.mlm_client_set_consumer.argtypes = [mlm_client_p, c_char_p, c_char_p]
+lib.mlm_client_remove_consumer.restype = c_int
+lib.mlm_client_remove_consumer.argtypes = [mlm_client_p, c_char_p]
 lib.mlm_client_set_worker.restype = c_int
 lib.mlm_client_set_worker.argtypes = [mlm_client_p, c_char_p, c_char_p]
 lib.mlm_client_send.restype = c_int
@@ -558,6 +586,13 @@ and ( ) to create groups. Returns 0 if subscription was successful, else -1.
 Returns >= 0 if successful, -1 if interrupted.
         """
         return lib.mlm_client_set_consumer(self._as_parameter_, stream, pattern)
+
+    def remove_consumer(self, stream):
+        """
+        Remove all subscriptions to a stream
+Returns >= 0 if successful, -1 if interrupted.
+        """
+        return lib.mlm_client_remove_consumer(self._as_parameter_, stream)
 
     def set_worker(self, address, pattern):
         """

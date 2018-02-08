@@ -21,6 +21,7 @@ typedef int SOCKET;
 ]]
 malamute_ffi.ffi.cdef [[
 typedef struct _mlm_proto_t mlm_proto_t;
+typedef struct _zconfig_t zconfig_t;
 typedef struct _zsock_t zsock_t;
 typedef struct _zframe_t zframe_t;
 typedef struct _zmsg_t zmsg_t;
@@ -31,9 +32,17 @@ typedef struct _zactor_t zactor_t;
 mlm_proto_t *
     mlm_proto_new (void);
 
+// Create a new mlm_proto from zpl/zconfig_t *
+mlm_proto_t *
+    mlm_proto_new_zpl (zconfig_t *config);
+
 // Destroy a mlm_proto instance
 void
     mlm_proto_destroy (mlm_proto_t **self_p);
+
+// Create a deep copy of a mlm_proto instance
+mlm_proto_t *
+    mlm_proto_dup (mlm_proto_t *self);
 
 // Receive a mlm_proto from the socket. Returns 0 if OK, -1 if
 // there was an error. Blocks if there is no message waiting.
@@ -47,6 +56,10 @@ int
 // Print contents of message to stdout
 void
     mlm_proto_print (mlm_proto_t *self);
+
+// Export class as zconfig_t*. Caller is responsibe for destroying the instance
+zconfig_t *
+    mlm_proto_zpl (mlm_proto_t *self, zconfig_t *parent);
 
 // Get the message routing id, as a frame
 zframe_t *
@@ -222,6 +235,11 @@ int
 // Returns >= 0 if successful, -1 if interrupted.
 int
     mlm_client_set_consumer (mlm_client_t *self, const char *stream, const char *pattern);
+
+// Remove all subscriptions to a stream
+// Returns >= 0 if successful, -1 if interrupted.
+int
+    mlm_client_remove_consumer (mlm_client_t *self, const char *stream);
 
 // Offer a particular named service, where the pattern matches request subjects
 // using the CZMQ zrex syntax.

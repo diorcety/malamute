@@ -20,11 +20,17 @@ public:
     //  Create a new empty mlm_proto
     explicit QMlmProto (QObject *qObjParent = 0);
 
+    //  Create a new mlm_proto from zpl/zconfig_t *
+    static QMlmProto* newZpl (QZconfig *config, QObject *qObjParent = 0);
+
     //  Destroy a mlm_proto instance
     ~QMlmProto ();
 
+    //  Create a deep copy of a mlm_proto instance
+    QMlmProto * dup ();
+
     //  Receive a mlm_proto from the socket. Returns 0 if OK, -1 if
-    //  there was an error. Blocks if there is no message waiting. 
+    //  there was an error. Blocks if there is no message waiting.
     int recv (QZsock *input);
 
     //  Send the mlm_proto to the output socket, does not destroy it
@@ -32,6 +38,9 @@ public:
 
     //  Print contents of message to stdout
     void print ();
+
+    //  Export class as zconfig_t*. Caller is responsibe for destroying the instance
+    QZconfig * zpl (QZconfig *parent);
 
     //  Get the message routing id, as a frame
     QZframe * routingId ();
@@ -78,7 +87,7 @@ public:
     //  Get the content field and transfer ownership to caller
     QZmsg * getContent ();
 
-    //  
+    //
     void setContent (QZmsg *contentP);
 
     //  Get the sender field

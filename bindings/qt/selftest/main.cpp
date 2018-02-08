@@ -20,9 +20,12 @@ int main(int argc, char **argv)
     QMlmProto::test (verbose);
     QMlmClient::test (verbose);
     QZsock::test (verbose);
+    QZconfig::test (verbose);
     QZframe::test (verbose);
     QZmsg::test (verbose);
     QZactor::test (verbose);
+    QZlist::test (verbose);
+    QZchunk::test (verbose);
 
     qDebug() << "Tests passed OK\n";
     return 0;

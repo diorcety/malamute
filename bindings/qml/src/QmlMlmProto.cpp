@@ -9,8 +9,16 @@
 
 
 ///
+//  Create a deep copy of a mlm_proto instance
+QmlMlmProto *QmlMlmProto::dup () {
+    QmlMlmProto *retQ_ = new QmlMlmProto ();
+    retQ_->self = mlm_proto_dup (self);
+    return retQ_;
+};
+
+///
 //  Receive a mlm_proto from the socket. Returns 0 if OK, -1 if
-//  there was an error. Blocks if there is no message waiting. 
+//  there was an error. Blocks if there is no message waiting.
 int QmlMlmProto::recv (zsock_t *input) {
     return mlm_proto_recv (self, input);
 };
@@ -25,6 +33,12 @@ int QmlMlmProto::send (zsock_t *output) {
 //  Print contents of message to stdout
 void QmlMlmProto::print () {
     mlm_proto_print (self);
+};
+
+///
+//  Export class as zconfig_t*. Caller is responsibe for destroying the instance
+zconfig_t *QmlMlmProto::zpl (zconfig_t *parent) {
+    return mlm_proto_zpl (self, parent);
 };
 
 ///
@@ -118,7 +132,7 @@ zmsg_t *QmlMlmProto::getContent () {
 };
 
 ///
-//  
+//
 void QmlMlmProto::setContent (zmsg_t **contentP) {
     mlm_proto_set_content (self, contentP);
 };
@@ -212,6 +226,14 @@ void QmlMlmProtoAttached::test (bool verbose) {
 QmlMlmProto *QmlMlmProtoAttached::construct () {
     QmlMlmProto *qmlSelf = new QmlMlmProto ();
     qmlSelf->self = mlm_proto_new ();
+    return qmlSelf;
+};
+
+///
+//  Create a new mlm_proto from zpl/zconfig_t *
+QmlMlmProto *QmlMlmProtoAttached::constructZpl (zconfig_t *config) {
+    QmlMlmProto *qmlSelf = new QmlMlmProto ();
+    qmlSelf->self = mlm_proto_new_zpl (config);
     return qmlSelf;
 };
 

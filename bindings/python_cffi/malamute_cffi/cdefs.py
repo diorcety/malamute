@@ -79,7 +79,7 @@ typedef void (zactor_fn) (
 //     if (zstr_send (self->pipe, "$KTHXBAI") == 0)
 //         zsock_wait (self->pipe);
 typedef void (zactor_destructor_fn) (
-    zactor_t *self);
+    zactor_t *self, void *args);
 
 // Loaders retrieve certificates from an arbitrary source.
 typedef void (zcertstore_loader) (
@@ -208,7 +208,7 @@ zsock_t *
 
 // Change default destructor by custom function. Actor MUST be able to handle new message instead of default $TERM.
 void
-    zactor_set_destructor (zactor_t *self, zactor_destructor_fn destructor);
+    zactor_set_destructor (zactor_t *self, zactor_destructor_fn destructor, void *args);
 
 // Self test of this class.
 void
@@ -775,6 +775,14 @@ char *
 bool
     zconfig_has_changed (zconfig_t *self);
 
+// Destroy subtree (all children)
+void
+    zconfig_remove_subtree (zconfig_t *self);
+
+// Destroy node and subtree (all children)
+void
+    zconfig_remove (zconfig_t **self_p);
+
 // Print the config file to open stream
 void
     zconfig_fprint (zconfig_t *self, FILE *file);
@@ -967,6 +975,11 @@ void
 // may be NULL, in which case it is not used.
 zfile_t *
     zfile_new (const char *path, const char *name);
+
+// Create new temporary file for writing via tmpfile. File is automaticaly
+// deleted on destroy
+zfile_t *
+    zfile_tmp (void);
 
 // Destroy a file item
 void
@@ -2256,11 +2269,16 @@ void
 // Setup the command line arguments, the first item must be an (absolute) filename
 // to run.
 void
-    zproc_set_args (zproc_t *self, zlistx_t *args);
+    zproc_set_args (zproc_t *self, zlist_t **args);
+
+// Setup the command line arguments, the first item must be an (absolute) filename
+// to run. Variadic function, must be NULL terminated.
+void
+    zproc_set_argsx (zproc_t *self, const char *args, ...);
 
 // Setup the environment variables for the process.
 void
-    zproc_set_env (zproc_t *self, zhashx_t *args);
+    zproc_set_env (zproc_t *self, zhash_t **args);
 
 // Connects process stdin with a readable ('>', connect) zeromq socket. If
 // socket argument is NULL, zproc creates own managed pair of inproc
@@ -4081,6 +4099,7 @@ malamute_cdefs.extend (czmq_cdefs)
 
 malamute_cdefs.append ('''
 typedef struct _mlm_proto_t mlm_proto_t;
+typedef struct _zconfig_t zconfig_t;
 typedef struct _zsock_t zsock_t;
 typedef struct _zframe_t zframe_t;
 typedef struct _zmsg_t zmsg_t;
@@ -4091,9 +4110,17 @@ typedef struct _zactor_t zactor_t;
 mlm_proto_t *
     mlm_proto_new (void);
 
+// Create a new mlm_proto from zpl/zconfig_t *
+mlm_proto_t *
+    mlm_proto_new_zpl (zconfig_t *config);
+
 // Destroy a mlm_proto instance
 void
     mlm_proto_destroy (mlm_proto_t **self_p);
+
+// Create a deep copy of a mlm_proto instance
+mlm_proto_t *
+    mlm_proto_dup (mlm_proto_t *self);
 
 // Receive a mlm_proto from the socket. Returns 0 if OK, -1 if
 // there was an error. Blocks if there is no message waiting.
@@ -4107,6 +4134,10 @@ int
 // Print contents of message to stdout
 void
     mlm_proto_print (mlm_proto_t *self);
+
+// Export class as zconfig_t*. Caller is responsibe for destroying the instance
+zconfig_t *
+    mlm_proto_zpl (mlm_proto_t *self, zconfig_t *parent);
 
 // Get the message routing id, as a frame
 zframe_t *
@@ -4282,6 +4313,11 @@ int
 // Returns >= 0 if successful, -1 if interrupted.
 int
     mlm_client_set_consumer (mlm_client_t *self, const char *stream, const char *pattern);
+
+// Remove all subscriptions to a stream
+// Returns >= 0 if successful, -1 if interrupted.
+int
+    mlm_client_remove_consumer (mlm_client_t *self, const char *stream);
 
 // Offer a particular named service, where the pattern matches request subjects
 // using the CZMQ zrex syntax.
