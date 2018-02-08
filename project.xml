@@ -33,6 +33,9 @@
         <option name = "agent_label" value = "libzmq4-dev && ( linux || macosx || bsd || solaris || posix || windows )" />
         <option name = "check_sequential" value = "1" />
     </target>
+    <target name = "qt" />
+    <target name = "qml" />
+    <target name = "nodejs" />
 
     <main name = "malamute" service = "1" />
     <main name = "mshell" />
