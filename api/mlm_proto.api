@@ -12,12 +12,12 @@
      * The XML model used for this code generation: mlm_proto.xml, or
      * The code generation script that built this file: zproto_codec_c
     ************************************************************************
-    Copyright (c) the Contributors as noted in the AUTHORS file.       
-    This file is part of the Malamute Project.                         
-                                                                       
+    Copyright (c) the Contributors as noted in the AUTHORS file.
+    This file is part of the Malamute Project.
+
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
-    file, You can obtain one at http://mozilla.org/MPL/2.0/.           
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
  -->
 <class name = "mlm_proto">
     <constant name = "success" value = "200" />
@@ -48,9 +48,19 @@
     Create a new empty mlm_proto
 </constructor>
 
+<constructor name = "new_zpl">
+    Create a new mlm_proto from zpl/zconfig_t *
+    <argument name = "config" type = "zconfig" />
+</constructor>
+
 <destructor>
     Destroy a mlm_proto instance
 </destructor>
+
+<method name = "dup">
+    Create a deep copy of a mlm_proto instance
+    <return type="mlm_proto" fresh="1" />
+</method>
 
 <method name = "recv">
     Receive a mlm_proto from the socket. Returns 0 if OK, -1 if
@@ -68,6 +78,13 @@
 <method name = "print">
     Print contents of message to stdout
 </method>
+
+<method name = "zpl">
+    Export class as zconfig_t*. Caller is responsibe for destroying the instance
+    <argument name = "parent" type = "zconfig" />
+    <return type = "zconfig" fresh = "1" />
+</method>
+
 
 <method name = "routing id">
     Get the message routing id, as a frame

@@ -5,7 +5,7 @@ digraph "mlm_client" {
  "start set plain auth" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set plain auth</font></td></tr><tr><td align="left" port="r3">use plain security mechanism</td></tr><tr><td align="left" port="r3">signal success</td></tr></table>>];
  "start" -> "start set plain auth";
  "start set plain auth" -> "start";
- "start connect" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">connect</font></td></tr><tr><td align="left" port="r3">remember client address</td></tr><tr><td align="left" port="r3">connect to server endpoint</td></tr><tr><td align="left" port="r3">set client address</td></tr><tr><td align="left" port="r3">use connect timeout</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "start connect" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">connect</font></td></tr><tr><td align="left" port="r3">remember client address</td></tr><tr><td align="left" port="r3">connect to server endpoint</td></tr><tr><td align="left" port="r3">set client address</td></tr><tr><td align="left" port="r3">use connect timeout</td></tr><tr><td align="left" port="r3">send (connection open)</td></tr></table>>];
  "start" -> "start connect";
  "start connect" -> "connecting";
  "start bad endpoint" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">bad endpoint</font></td></tr><tr><td align="left" port="r3">signal bad endpoint</td></tr></table>>];
@@ -31,7 +31,7 @@ digraph "mlm_client" {
  "start *" -> "start";
 
  "connecting" [shape = "doublecircle"];
- "connecting heartbeat" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">heartbeat</font></td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "connecting heartbeat" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">heartbeat</font></td></tr><tr><td align="left" port="r3">send (connection ping)</td></tr></table>>];
  "connecting" -> "connecting heartbeat";
  "connecting heartbeat" -> "connecting";
  "connecting connection pong" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">connection pong</font></td></tr><tr><td align="left" port="r3">client is connected</td></tr></table>>];
@@ -51,7 +51,7 @@ digraph "mlm_client" {
  "connecting expired" -> "start";
 
  "connected" [shape = "doublecircle"];
- "connected heartbeat" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">heartbeat</font></td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "connected heartbeat" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">heartbeat</font></td></tr><tr><td align="left" port="r3">send (connection ping)</td></tr></table>>];
  "connected" -> "connected heartbeat";
  "connected heartbeat" -> "connected";
  "connected connection pong" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">connection pong</font></td></tr><tr><td align="left" port="r3">client is connected</td></tr></table>>];
@@ -66,19 +66,19 @@ digraph "mlm_client" {
  "connected *" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">*</font></td></tr></table>>];
  "connected" -> "connected *";
  "connected *" -> "connected";
- "connected set producer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set producer</font></td></tr><tr><td align="left" port="r3">prepare stream write command</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "connected set producer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set producer</font></td></tr><tr><td align="left" port="r3">prepare stream write command</td></tr><tr><td align="left" port="r3">send (stream write)</td></tr></table>>];
  "connected" -> "connected set producer";
  "connected set producer" -> "confirming";
- "connected set consumer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set consumer</font></td></tr><tr><td align="left" port="r3">prepare stream read command</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "connected set consumer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set consumer</font></td></tr><tr><td align="left" port="r3">prepare stream read command</td></tr><tr><td align="left" port="r3">send (stream read)</td></tr></table>>];
  "connected" -> "connected set consumer";
  "connected set consumer" -> "confirming";
- "connected remove consumer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">remove consumer</font></td></tr><tr><td align="left" port="r3">prepare stream cancel command</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "connected remove consumer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">remove consumer</font></td></tr><tr><td align="left" port="r3">prepare stream cancel command</td></tr><tr><td align="left" port="r3">send (stream cancel)</td></tr></table>>];
  "connected" -> "connected remove consumer";
  "connected remove consumer" -> "confirming";
- "connected set worker" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set worker</font></td></tr><tr><td align="left" port="r3">prepare service offer command</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "connected set worker" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set worker</font></td></tr><tr><td align="left" port="r3">prepare service offer command</td></tr><tr><td align="left" port="r3">send (service offer)</td></tr></table>>];
  "connected" -> "connected set worker";
  "connected set worker" -> "confirming";
- "connected destructor" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">destructor</font></td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "connected destructor" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">destructor</font></td></tr><tr><td align="left" port="r3">send (connection close)</td></tr></table>>];
  "connected" -> "connected destructor";
  "connected destructor" -> "terminating";
  "connected bad pattern" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">bad pattern</font></td></tr><tr><td align="left" port="r3">signal bad pattern</td></tr></table>>];
@@ -95,7 +95,7 @@ digraph "mlm_client" {
  "connected service deliver" -> "connected";
 
  "confirming" [shape = "doublecircle"];
- "confirming heartbeat" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">heartbeat</font></td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "confirming heartbeat" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">heartbeat</font></td></tr><tr><td align="left" port="r3">send (connection ping)</td></tr></table>>];
  "confirming" -> "confirming heartbeat";
  "confirming heartbeat" -> "confirming";
  "confirming *" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">*</font></td></tr></table>>];
@@ -124,7 +124,7 @@ digraph "mlm_client" {
  "confirming service deliver" -> "confirming";
 
  "terminating" [shape = "doublecircle"];
- "terminating heartbeat" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">heartbeat</font></td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "terminating heartbeat" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">heartbeat</font></td></tr><tr><td align="left" port="r3">send (connection ping)</td></tr></table>>];
  "terminating" -> "terminating heartbeat";
  "terminating heartbeat" -> "terminating";
  "terminating *" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">*</font></td></tr></table>>];
@@ -144,7 +144,7 @@ digraph "mlm_client" {
  "terminating error" -> "terminating";
 
  "reconnecting" [shape = "doublecircle"];
- "reconnecting heartbeat" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">heartbeat</font></td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "reconnecting heartbeat" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">heartbeat</font></td></tr><tr><td align="left" port="r3">send (connection ping)</td></tr></table>>];
  "reconnecting" -> "reconnecting heartbeat";
  "reconnecting heartbeat" -> "reconnecting";
  "reconnecting expired" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">expired</font></td></tr><tr><td align="left" port="r3">server has gone offline</td></tr></table>>];
@@ -159,16 +159,16 @@ digraph "mlm_client" {
  "reconnecting error" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">error</font></td></tr></table>>];
  "reconnecting" -> "reconnecting error";
  "reconnecting error" -> "reconnecting";
- "reconnecting set producer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set producer</font></td></tr><tr><td align="left" port="r3">send</td></tr><tr><td align="left" port="r3">get next replay command</td></tr></table>>];
+ "reconnecting set producer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set producer</font></td></tr><tr><td align="left" port="r3">send (stream write)</td></tr><tr><td align="left" port="r3">get next replay command</td></tr></table>>];
  "reconnecting" -> "reconnecting set producer";
  "reconnecting set producer" -> "reconnecting";
- "reconnecting set consumer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set consumer</font></td></tr><tr><td align="left" port="r3">send</td></tr><tr><td align="left" port="r3">get next replay command</td></tr></table>>];
+ "reconnecting set consumer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set consumer</font></td></tr><tr><td align="left" port="r3">send (stream read)</td></tr><tr><td align="left" port="r3">get next replay command</td></tr></table>>];
  "reconnecting" -> "reconnecting set consumer";
  "reconnecting set consumer" -> "reconnecting";
- "reconnecting remove consumer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">remove consumer</font></td></tr><tr><td align="left" port="r3">send</td></tr><tr><td align="left" port="r3">get next replay command</td></tr></table>>];
+ "reconnecting remove consumer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">remove consumer</font></td></tr><tr><td align="left" port="r3">send (stream cancel)</td></tr><tr><td align="left" port="r3">get next replay command</td></tr></table>>];
  "reconnecting" -> "reconnecting remove consumer";
  "reconnecting remove consumer" -> "reconnecting";
- "reconnecting set worker" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set worker</font></td></tr><tr><td align="left" port="r3">send</td></tr><tr><td align="left" port="r3">get next replay command</td></tr></table>>];
+ "reconnecting set worker" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set worker</font></td></tr><tr><td align="left" port="r3">send (service offer)</td></tr><tr><td align="left" port="r3">get next replay command</td></tr></table>>];
  "reconnecting" -> "reconnecting set worker";
  "reconnecting set worker" -> "reconnecting";
  "reconnecting replay ready" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">replay ready</font></td></tr><tr><td align="left" port="r3">client is connected</td></tr></table>>];
@@ -179,7 +179,7 @@ digraph "mlm_client" {
  "reconnecting connection pong" -> "reconnecting";
 
  "disconnected" [shape = "doublecircle"];
- "disconnected heartbeat" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">heartbeat</font></td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "disconnected heartbeat" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">heartbeat</font></td></tr><tr><td align="left" port="r3">send (connection ping)</td></tr></table>>];
  "disconnected" -> "disconnected heartbeat";
  "disconnected heartbeat" -> "disconnected";
  "disconnected connection pong" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">connection pong</font></td></tr><tr><td align="left" port="r3">client is connected</td></tr></table>>];
@@ -211,7 +211,7 @@ digraph "mlm_client" {
  "disconnected destructor" -> "disconnected";
 
  "have error" [shape = "doublecircle"];
- "have error command invalid" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">command invalid</font></td></tr><tr><td align="left" port="r3">set client address</td></tr><tr><td align="left" port="r3">use connect timeout</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "have error command invalid" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">command invalid</font></td></tr><tr><td align="left" port="r3">set client address</td></tr><tr><td align="left" port="r3">use connect timeout</td></tr><tr><td align="left" port="r3">send (connection open)</td></tr></table>>];
  "have error" -> "have error command invalid";
  "have error command invalid" -> "reconnecting";
  "have error failed" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">failed</font></td></tr><tr><td align="left" port="r3">signal failure</td></tr><tr><td align="left" port="r3">terminate</td></tr></table>>];

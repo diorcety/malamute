@@ -24,6 +24,12 @@ class MlmProto(object):
         # https://cffi.readthedocs.org/en/latest/using.html#ffi-interface
         self._p = utils.ffi.gc(p, libmalamute_destructors.mlm_proto_destroy_py)
 
+    def dup(self):
+        """
+        Create a deep copy of a mlm_proto instance
+        """
+        return utils.lib.mlm_proto_dup(self._p)
+
     def recv(self, input):
         """
         Receive a mlm_proto from the socket. Returns 0 if OK, -1 if
@@ -42,6 +48,12 @@ class MlmProto(object):
         Print contents of message to stdout
         """
         utils.lib.mlm_proto_print(self._p)
+
+    def zpl(self, parent):
+        """
+        Export class as zconfig_t*. Caller is responsibe for destroying the instance
+        """
+        return utils.lib.mlm_proto_zpl(self._p, parent._p)
 
     def routing_id(self):
         """

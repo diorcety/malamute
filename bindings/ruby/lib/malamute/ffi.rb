@@ -54,10 +54,13 @@ module Malamute
       }
 
       attach_function :mlm_proto_new, [], :pointer, **opts
+      attach_function :mlm_proto_new_zpl, [:pointer], :pointer, **opts
       attach_function :mlm_proto_destroy, [:pointer], :void, **opts
+      attach_function :mlm_proto_dup, [:pointer], :pointer, **opts
       attach_function :mlm_proto_recv, [:pointer, :pointer], :int, **opts
       attach_function :mlm_proto_send, [:pointer, :pointer], :int, **opts
       attach_function :mlm_proto_print, [:pointer], :void, **opts
+      attach_function :mlm_proto_zpl, [:pointer, :pointer], :pointer, **opts
       attach_function :mlm_proto_routing_id, [:pointer], :pointer, **opts
       attach_function :mlm_proto_set_routing_id, [:pointer, :pointer], :void, **opts
       attach_function :mlm_proto_id, [:pointer], :int, **opts

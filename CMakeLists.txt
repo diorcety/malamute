@@ -199,20 +199,20 @@ if (NOT MLM_BUILD_SHARED AND NOT MLM_BUILD_STATIC)
   message(FATAL_ERROR "Neither static nor shared library build enabled")
 endif()
 
-IF (NOT MSVC)
+IF (NOT WIN32)
   # avoid building everything twice for shared + static
   # only on *nix, as Windows needs different preprocessor defines in static builds
   add_library (mlm_objects OBJECT ${mlm_sources})
   set_property(TARGET mlm_objects PROPERTY POSITION_INDEPENDENT_CODE ON)
-ENDIF (NOT MSVC)
+ENDIF (NOT WIN32)
 
 # shared
 if (MLM_BUILD_SHARED)
-  IF (MSVC)
+  IF (WIN32)
     add_library(mlm SHARED ${mlm_sources})
-  ELSE (MSVC)
+  ELSE (WIN32)
     add_library(mlm SHARED $<TARGET_OBJECTS:mlm_objects>)
-  ENDIF (MSVC)
+  ENDIF (WIN32)
 
   set_target_properties (mlm PROPERTIES
     PUBLIC_HEADER "${public_headers}"
@@ -241,11 +241,11 @@ endif()
 
 # static
 if (MLM_BUILD_STATIC)
-  IF (MSVC)
+  IF (WIN32)
     add_library(mlm-static STATIC ${mlm_sources})
-  ELSE (MSVC)
+  ELSE (WIN32)
     add_library(mlm-static STATIC $<TARGET_OBJECTS:mlm_objects>)
-  ENDIF (MSVC)
+  ENDIF (WIN32)
 
   set_target_properties(mlm-static PROPERTIES
     PUBLIC_HEADER "${public_headers}"

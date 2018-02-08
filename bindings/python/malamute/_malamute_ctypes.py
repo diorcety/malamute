@@ -57,12 +57,18 @@ lib.mlm_proto_new.restype = mlm_proto_p
 lib.mlm_proto_new.argtypes = []
 lib.mlm_proto_destroy.restype = None
 lib.mlm_proto_destroy.argtypes = [POINTER(mlm_proto_p)]
+lib.mlm_proto_new_zpl.restype = mlm_proto_p
+lib.mlm_proto_new_zpl.argtypes = [czmq.zconfig_p]
+lib.mlm_proto_dup.restype = mlm_proto_p
+lib.mlm_proto_dup.argtypes = [mlm_proto_p]
 lib.mlm_proto_recv.restype = c_int
 lib.mlm_proto_recv.argtypes = [mlm_proto_p, czmq.zsock_p]
 lib.mlm_proto_send.restype = c_int
 lib.mlm_proto_send.argtypes = [mlm_proto_p, czmq.zsock_p]
 lib.mlm_proto_print.restype = None
 lib.mlm_proto_print.argtypes = [mlm_proto_p]
+lib.mlm_proto_zpl.restype = czmq.zconfig_p
+lib.mlm_proto_zpl.argtypes = [mlm_proto_p, czmq.zconfig_p]
 lib.mlm_proto_routing_id.restype = czmq.zframe_p
 lib.mlm_proto_routing_id.argtypes = [mlm_proto_p]
 lib.mlm_proto_set_routing_id.restype = None
@@ -193,6 +199,19 @@ class MlmProto(object):
         "Determine whether the object is valid by converting to boolean" # Python 2
         return self._as_parameter_.__nonzero__()
 
+    @staticmethod
+    def new_zpl(config):
+        """
+        Create a new mlm_proto from zpl/zconfig_t *
+        """
+        return MlmProto(lib.mlm_proto_new_zpl(config), True)
+
+    def dup(self):
+        """
+        Create a deep copy of a mlm_proto instance
+        """
+        return MlmProto(lib.mlm_proto_dup(self._as_parameter_), True)
+
     def recv(self, input):
         """
         Receive a mlm_proto from the socket. Returns 0 if OK, -1 if
@@ -211,6 +230,12 @@ there was an error. Blocks if there is no message waiting.
         Print contents of message to stdout
         """
         return lib.mlm_proto_print(self._as_parameter_)
+
+    def zpl(self, parent):
+        """
+        Export class as zconfig_t*. Caller is responsibe for destroying the instance
+        """
+        return czmq.Zconfig(lib.mlm_proto_zpl(self._as_parameter_, parent), True)
 
     def routing_id(self):
         """

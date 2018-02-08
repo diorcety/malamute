@@ -149,6 +149,14 @@ module Malamute
         __new ptr
       end
 
+      # Create a new mlm_proto from zpl/zconfig_t *
+      # @param config [::FFI::Pointer, #to_ptr]
+      # @return [Malamute::MlmProto]
+      def self.new_zpl(config)
+        ptr = ::Malamute::FFI.mlm_proto_new_zpl(config)
+        __new ptr
+      end
+
       # Destroy a mlm_proto instance
       #
       # @return [void]
@@ -156,6 +164,17 @@ module Malamute
         return unless @ptr
         self_p = __ptr_give_ref
         result = ::Malamute::FFI.mlm_proto_destroy(self_p)
+        result
+      end
+
+      # Create a deep copy of a mlm_proto instance
+      #
+      # @return [MlmProto]
+      def dup()
+        raise DestroyedError unless @ptr
+        self_p = @ptr
+        result = ::Malamute::FFI.mlm_proto_dup(self_p)
+        result = MlmProto.__new result, true
         result
       end
 
@@ -189,6 +208,17 @@ module Malamute
         raise DestroyedError unless @ptr
         self_p = @ptr
         result = ::Malamute::FFI.mlm_proto_print(self_p)
+        result
+      end
+
+      # Export class as zconfig_t*. Caller is responsibe for destroying the instance
+      #
+      # @param parent [::FFI::Pointer, #to_ptr]
+      # @return [::FFI::Pointer]
+      def zpl(parent)
+        raise DestroyedError unless @ptr
+        self_p = @ptr
+        result = ::Malamute::FFI.mlm_proto_zpl(self_p, parent)
         result
       end
 
