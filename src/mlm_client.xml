@@ -31,10 +31,6 @@
             <action name = "terminate" />
         </event>
         <!-- before we can do this, we need to connect -> immediately generate fail -->
-        <event name = "set producer">
-            <action name = "signal failure" />
-        </event>
-        <!-- before we can do this, we need to connect -> immediately generate fail -->
         <event name = "set consumer">
             <action name = "signal failure" />
         </event>
@@ -66,10 +62,6 @@
     </state>
 
     <state name = "connected" inherit = "defaults">
-        <event name = "set producer" next = "confirming">
-            <action name = "prepare stream write command" />
-            <action name = "send" message = "STREAM WRITE" />
-        </event>
         <event name = "set consumer" next = "confirming">
             <action name = "prepare stream read command" />
             <action name = "send" message = "STREAM READ" />
@@ -157,11 +149,6 @@
         <event name = "ERROR">
             <!-- If we sent multiple PINGs, ignore further ERRORs -->
         </event>
-        <!-- Replay commands, looping in same state -->
-        <event name = "set producer">
-            <action name = "send" message = "STREAM WRITE" />
-            <action name = "get next replay command" />
-        </event>
         <event name = "set consumer">
             <action name = "send" message = "STREAM READ" />
             <action name = "get next replay command" />
@@ -188,10 +175,6 @@
 
     <!-- Server is gone, wait for it to return -->
     <state name = "disconnected" inherit = "defaults">
-        <!-- before we can do this, we need to connect -> immediately generate fail -->
-        <event name = "set producer">
-            <action name = "signal failure" />
-        </event>
         <!-- before we can do this, we need to connect -> immediately generate fail -->
         <event name = "set consumer">
             <action name = "signal failure" />
@@ -285,14 +268,6 @@
         <field name = "status" type = "integer" />
         <field name = "reason" type = "string" />
     </reply>
-
-    <method name = "set producer" return = "status">
-    Prepare to publish to a specified stream. After this, all messages
-    are sent to this stream exclusively.
-        <field name = "stream" type = "string" />
-        <accept reply = "SUCCESS" />
-        <accept reply = "FAILURE" />
-    </method>
 
     <method name = "set consumer" return = "status">
     Consume messages with matching subjects. The pattern is a regular

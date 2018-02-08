@@ -17,8 +17,7 @@
 
     traffic = stream-traffic / mailbox-traffic / service-traffic / credit
 
-    stream-traffic = C:STREAM-WRITE ( S:OK / S:ERROR )
-                   / C:STREAM-READ
+    stream-traffic = C:STREAM-READ
                    / C:STREAM-CANCEL
                    / C:STREAM-PUBLISH
                    / S:STREAM-DELIVER
@@ -64,13 +63,6 @@
     </message>
 
     <!-- Stream operations -->
-    <message name = "STREAM WRITE">
-        Client declares intention to write to a stream. If stream does not
-        exist, server creates it. A client can write to a single stream at
-        once. Server replies with OK or ERROR. 
-        <field name = "stream" type = "string">Name of stream</field>
-    </message>
-    
     <message name = "STREAM READ">
         Client opens a stream for reading, specifying a pattern to match
         message subjects. An empty pattern matches everything. If the stream
@@ -93,6 +85,7 @@
         has a subject, and a content of zero or more frames. Server does not
         reply to this message. The subject is used to match messages to
         readers. A reader will receive a given message at most once.
+        <field name = "address" type = "string">Name of stream</field>
         <field name = "subject" type = "string">Message subject</field>
         <field name = "content" type = "msg">Message body frames</field>
     </message>
