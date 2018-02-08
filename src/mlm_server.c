@@ -187,6 +187,25 @@ s_stream_require (client_t *self, const char *name)
     return stream;
 }
 
+static void
+cancel_stream_reader (client_t *self)
+{
+    //  Cancel stream subscription
+    stream_t *stream = (stream_t *) zhashx_lookup (
+        self->server->streams,
+        mlm_proto_stream (self->message)
+    );
+    if (stream) {
+        zsock_send (stream->actor, "sps", "CANCEL", self, mlm_proto_pattern (self->message));
+        zlistx_detach (self->readers, zlistx_find (self->readers, stream));
+        mlm_proto_set_status_code (self->message, MLM_PROTO_SUCCESS);
+    }
+    else {
+        engine_set_exception (self, exception_event);
+        zsys_warning ("stream does not exist");
+    }
+}
+
 
 //  Work with service offer instance
 
@@ -299,6 +318,32 @@ s_service_dispatch (service_t *self)
                 mlm_msgq_dequeue_cursor (self->queue);
             message = mlm_msgq_next (self->queue);
         }
+    }
+}
+
+static void
+cancel_service_offer (client_t *self)
+{
+    //  Cancel service offer
+    service_t *service = (service_t *) zhashx_lookup (
+        self->server->services,
+        mlm_proto_address (self->message)
+    );
+    const char * pattern = mlm_proto_pattern (self->message);
+
+    if (service) {
+        offer_t *offer = (offer_t *) zlistx_first (service->offers);
+        while (offer) {
+            if (offer->client == self && (strlen(pattern) == 0 || streq (offer->pattern, pattern)))
+                zlistx_delete (service->offers, zlistx_cursor (service->offers));
+            offer = (offer_t *) zlistx_next (service->offers);
+        }
+        service = (service_t *) zhashx_next (self->server->services);
+        mlm_proto_set_status_code (self->message, MLM_PROTO_SUCCESS);
+    }
+    else {
+        engine_set_exception (self, exception_event);
+        zsys_warning ("service does not exist");
     }
 }
 
@@ -735,8 +780,8 @@ client_had_exception (client_t *self)
 static void
 deregister_the_client (client_t *self)
 {
-	// If the client never sent CONNECTION_OPEN then self->address was
-	// never set, so avoid trying to dereference it.  Nothing needs to
+    // If the client never sent CONNECTION_OPEN then self->address was
+    // never set, so avoid trying to dereference it.  Nothing needs to
     // be cleaned up.
     if (self->address) {
         if (*self->address)
@@ -745,7 +790,7 @@ deregister_the_client (client_t *self)
         //  Cancel all stream subscriptions
         stream_t *stream = (stream_t *) zlistx_detach (self->readers, NULL);
         while (stream) {
-            zsock_send (stream->actor, "sp", "CANCEL", self);
+            zsock_send (stream->actor, "sps", "CANCEL", self, "");
             stream = (stream_t *) zlistx_detach (self->readers, NULL);
         }
         //  Cancel all service offerings
@@ -1216,22 +1261,3 @@ mlm_server_test (bool verbose)
     printf ("OK\n");
 }
 
-
-//  ---------------------------------------------------------------------------
-//  cancel_stream_reader
-//
-
-static void
-cancel_stream_reader (client_t *self)
-{
-    //  Cancel stream subscription
-    stream_t *stream = s_stream_require (self, mlm_proto_stream (self->message));
-    if (stream) {
-        zsock_send (stream->actor, "sp", "CANCEL", self);
-        stream = (stream_t *) zlistx_detach (self->readers, NULL);
-    }
-    else {
-        engine_set_exception (self, exception_event);
-        zsys_warning ("stream does not exist");
-    }
-}

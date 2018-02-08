@@ -1429,7 +1429,8 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
     else
     if (streq (method, "REMOVE CONSUMER")) {
         zstr_free (&self->args.stream);
-        zsock_recv (self->cmdpipe, "s", &self->args.stream);
+        zstr_free (&self->args.pattern);
+        zsock_recv (self->cmdpipe, "ss", &self->args.stream, &self->args.pattern);
         s_client_execute (self, remove_consumer_event);
     }
     else
@@ -1438,6 +1439,13 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
         zstr_free (&self->args.pattern);
         zsock_recv (self->cmdpipe, "ss", &self->args.address, &self->args.pattern);
         s_client_execute (self, set_worker_event);
+    }
+    else
+    if (streq (method, "REMOVE WORKER")) {
+        zstr_free (&self->args.address);
+        zstr_free (&self->args.pattern);
+        zsock_recv (self->cmdpipe, "ss", &self->args.address, &self->args.pattern);
+        s_client_execute (self, remove_worker_event);
     }
     //  Cleanup pipe if any argument frames are still waiting to be eaten
     if (zsock_rcvmore (self->cmdpipe)) {
@@ -1836,15 +1844,15 @@ mlm_client_set_consumer (mlm_client_t *self, const char *stream, const char *pat
 
 
 //  ---------------------------------------------------------------------------
-//  Remove all subscriptions to a stream
+//  Remove subscriptions to a stream.
 //  Returns >= 0 if successful, -1 if interrupted.
 
 int
-mlm_client_remove_consumer (mlm_client_t *self, const char *stream)
+mlm_client_remove_consumer (mlm_client_t *self, const char *stream, const char *pattern)
 {
     assert (self);
 
-    zsock_send (self->actor, "ss", "REMOVE CONSUMER", stream);
+    zsock_send (self->actor, "sss", "REMOVE CONSUMER", stream, pattern);
     if (s_accept_reply (self, "SUCCESS", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;
@@ -1862,6 +1870,22 @@ mlm_client_set_worker (mlm_client_t *self, const char *address, const char *patt
     assert (self);
 
     zsock_send (self->actor, "sss", "SET WORKER", address, pattern);
+    if (s_accept_reply (self, "SUCCESS", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Remove offers for named service.
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int
+mlm_client_remove_worker (mlm_client_t *self, const char *address, const char *pattern)
+{
+    assert (self);
+
+    zsock_send (self->actor, "sss", "REMOVE WORKER", address, pattern);
     if (s_accept_reply (self, "SUCCESS", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;

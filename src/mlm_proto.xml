@@ -27,7 +27,8 @@
                     / S:MAILBOX-DELIVER [ C:CONFIRM ]
     
     service-traffic = C:SERVICE-SEND ( S:OK [ S:CONFIRM ] / S:ERROR )
-                    / C:SERVICE-OFFER 
+                    / C:SERVICE-OFFER
+                    / C:SERVICE-CANCEL
                     / S:SERVICE-DELIVER [ C:CONFIRM ]
 
     credit = C:CREDIT
@@ -79,7 +80,7 @@
         <field name = "stream" type = "string">Name of stream</field>
         <field name = "pattern" type = "string">Match message subjects</field>
     </message>
-    
+
     <message name = "STREAM SEND">
         Client publishes a message to the current stream. A stream message
         has a subject, and a content of zero or more frames. Server does not
@@ -194,9 +195,17 @@
     </message>
 
     <message name = "STREAM CANCEL">
-        Cancels and removes all subscriptions to a stream.
+        Cancels and removes subscriptions to a stream.
         Server replies with OK or ERROR.
         <field name = "stream" type = "string">Name of stream</field>
+        <field name = "pattern" type = "string">Match message subjects</field>
+    </message>
+
+    <message name = "SERVICE CANCEL">
+        Cancels and removes offers for a named service.
+        Server replies with OK or ERROR.
+        <field name = "address" type = "string">Service address</field>
+        <field name = "pattern" type = "string">Match message subjects</field>
     </message>
 
     <type name = "status">

@@ -49,6 +49,10 @@
             <action name = "send" message = "OK" />
             <action name = "dispatch the service" />
         </event>
+        <event name = "SERVICE CANCEL">
+            <action name = "cancel service offer" />
+            <action name = "send" message = "OK" />
+        </event>
         <event name = "CONFIRM">
             <action name = "have message confirmation" />
         </event>
