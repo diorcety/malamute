@@ -27,7 +27,8 @@
                     / S:MAILBOX-DELIVER [ C:CONFIRM ]
     
     service-traffic = C:SERVICE-SEND ( S:OK [ S:CONFIRM ] / S:ERROR )
-                    / C:SERVICE-OFFER 
+                    / C:SERVICE-OFFER
+                    / C:SERVICE-CANCEL
                     / S:SERVICE-DELIVER [ C:CONFIRM ]
 
     credit = C:CREDIT
@@ -81,9 +82,10 @@
     </message>
 
     <message name = "STREAM CANCEL">
-        Cancels and removes all subscriptions to a stream . 
+        Cancels and removes subscriptions to a stream.
         Server replies with OK or ERROR.
         <field name = "stream" type = "string">Name of stream</field>
+        <field name = "pattern" type = "string">Match message subjects</field>
     </message>
     
     <message name = "STREAM SEND">
@@ -153,6 +155,13 @@
         Worker client offers a named service, specifying a pattern to match
         message subjects. An empty pattern matches anything. A worker can offer
         many different services at once. Server replies with OK or ERROR.
+        <field name = "address" type = "string">Service address</field>
+        <field name = "pattern" type = "string">Match message subjects</field>
+    </message>
+
+    <message name = "SERVICE CANCEL">
+        Cancels and removes offers for a named service.
+        Server replies with OK or ERROR.
         <field name = "address" type = "string">Service address</field>
         <field name = "pattern" type = "string">Match message subjects</field>
     </message>
