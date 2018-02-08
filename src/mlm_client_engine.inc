@@ -41,24 +41,23 @@ typedef enum {
     connect_event = 2,
     bad_endpoint_event = 3,
     destructor_event = 4,
-    set_producer_event = 5,
-    set_consumer_event = 6,
-    remove_consumer_event = 7,
-    set_worker_event = 8,
-    remove_worker_event = 9,
-    ok_event = 10,
-    expired_event = 11,
-    bad_pattern_event = 12,
-    stream_deliver_event = 13,
-    mailbox_deliver_event = 14,
-    service_deliver_event = 15,
-    error_event = 16,
-    connection_pong_event = 17,
-    replay_ready_event = 18,
-    heartbeat_event = 19,
-    command_invalid_event = 20,
-    failed_event = 21,
-    other_event = 22
+    set_consumer_event = 5,
+    remove_consumer_event = 6,
+    set_worker_event = 7,
+    remove_worker_event = 8,
+    ok_event = 9,
+    expired_event = 10,
+    bad_pattern_event = 11,
+    stream_deliver_event = 12,
+    mailbox_deliver_event = 13,
+    service_deliver_event = 14,
+    error_event = 15,
+    connection_pong_event = 16,
+    replay_ready_event = 17,
+    heartbeat_event = 18,
+    command_invalid_event = 19,
+    failed_event = 20,
+    other_event = 21
 } event_t;
 
 //  Names for state machine logging and error reporting
@@ -83,7 +82,6 @@ s_event_name [] = {
     "connect",
     "bad_endpoint",
     "destructor",
-    "set_producer",
     "set_consumer",
     "remove_consumer",
     "set_worker",
@@ -181,8 +179,6 @@ static void
     client_is_connected (client_t *self);
 static void
     signal_server_not_present (client_t *self);
-static void
-    prepare_stream_write_command (client_t *self);
 static void
     prepare_stream_read_command (client_t *self);
 static void
@@ -546,15 +542,6 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                 }
                 else
-                if (self->event == set_producer_event) {
-                    if (!self->exception) {
-                        //  signal failure
-                        if (self->verbose)
-                            zsys_debug ("%s:         $ signal failure", self->log_prefix);
-                        signal_failure (&self->client);
-                    }
-                }
-                else
                 if (self->event == set_consumer_event) {
                     if (!self->exception) {
                         //  signal failure
@@ -662,25 +649,6 @@ s_client_execute (s_client_t *self, event_t event)
                 break;
 
             case connected_state:
-                if (self->event == set_producer_event) {
-                    if (!self->exception) {
-                        //  prepare stream write command
-                        if (self->verbose)
-                            zsys_debug ("%s:         $ prepare stream write command", self->log_prefix);
-                        prepare_stream_write_command (&self->client);
-                    }
-                    if (!self->exception) {
-                        //  send STREAM_WRITE
-                        if (self->verbose)
-                            zsys_debug ("%s:         $ send STREAM_WRITE",
-                                self->log_prefix);
-                        mlm_proto_set_id (self->message, MLM_PROTO_STREAM_WRITE);
-                        mlm_proto_send (self->message, self->dealer);
-                    }
-                    if (!self->exception)
-                        self->state = confirming_state;
-                }
-                else
                 if (self->event == set_consumer_event) {
                     if (!self->exception) {
                         //  prepare stream read command
@@ -1028,23 +996,6 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == error_event) {
                 }
                 else
-                if (self->event == set_producer_event) {
-                    if (!self->exception) {
-                        //  send STREAM_WRITE
-                        if (self->verbose)
-                            zsys_debug ("%s:         $ send STREAM_WRITE",
-                                self->log_prefix);
-                        mlm_proto_set_id (self->message, MLM_PROTO_STREAM_WRITE);
-                        mlm_proto_send (self->message, self->dealer);
-                    }
-                    if (!self->exception) {
-                        //  get next replay command
-                        if (self->verbose)
-                            zsys_debug ("%s:         $ get next replay command", self->log_prefix);
-                        get_next_replay_command (&self->client);
-                    }
-                }
-                else
                 if (self->event == set_consumer_event) {
                     if (!self->exception) {
                         //  send STREAM_READ
@@ -1154,15 +1105,6 @@ s_client_execute (s_client_t *self, event_t event)
                 break;
 
             case disconnected_state:
-                if (self->event == set_producer_event) {
-                    if (!self->exception) {
-                        //  signal failure
-                        if (self->verbose)
-                            zsys_debug ("%s:         $ signal failure", self->log_prefix);
-                        signal_failure (&self->client);
-                    }
-                }
-                else
                 if (self->event == set_consumer_event) {
                     if (!self->exception) {
                         //  signal failure
@@ -1470,12 +1412,6 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
     else
     if (streq (method, "DESTRUCTOR")) {
         s_client_execute (self, destructor_event);
-    }
-    else
-    if (streq (method, "SET PRODUCER")) {
-        zstr_free (&self->args.stream);
-        zsock_recv (self->cmdpipe, "s", &self->args.stream);
-        s_client_execute (self, set_producer_event);
     }
     else
     if (streq (method, "SET CONSUMER")) {

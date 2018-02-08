@@ -14,9 +14,6 @@ digraph "mlm_client" {
  "start destructor" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">destructor</font></td></tr><tr><td align="left" port="r3">signal success</td></tr><tr><td align="left" port="r3">terminate</td></tr></table>>];
  "start" -> "start destructor";
  "start destructor" -> "start";
- "start set producer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set producer</font></td></tr><tr><td align="left" port="r3">signal failure</td></tr></table>>];
- "start" -> "start set producer";
- "start set producer" -> "start";
  "start set consumer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set consumer</font></td></tr><tr><td align="left" port="r3">signal failure</td></tr></table>>];
  "start" -> "start set consumer";
  "start set consumer" -> "start";
@@ -69,9 +66,6 @@ digraph "mlm_client" {
  "connected *" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">*</font></td></tr></table>>];
  "connected" -> "connected *";
  "connected *" -> "connected";
- "connected set producer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set producer</font></td></tr><tr><td align="left" port="r3">prepare stream write command</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
- "connected" -> "connected set producer";
- "connected set producer" -> "confirming";
  "connected set consumer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set consumer</font></td></tr><tr><td align="left" port="r3">prepare stream read command</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
  "connected" -> "connected set consumer";
  "connected set consumer" -> "confirming";
@@ -165,9 +159,6 @@ digraph "mlm_client" {
  "reconnecting error" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">error</font></td></tr></table>>];
  "reconnecting" -> "reconnecting error";
  "reconnecting error" -> "reconnecting";
- "reconnecting set producer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set producer</font></td></tr><tr><td align="left" port="r3">send</td></tr><tr><td align="left" port="r3">get next replay command</td></tr></table>>];
- "reconnecting" -> "reconnecting set producer";
- "reconnecting set producer" -> "reconnecting";
  "reconnecting set consumer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set consumer</font></td></tr><tr><td align="left" port="r3">send</td></tr><tr><td align="left" port="r3">get next replay command</td></tr></table>>];
  "reconnecting" -> "reconnecting set consumer";
  "reconnecting set consumer" -> "reconnecting";
@@ -203,9 +194,6 @@ digraph "mlm_client" {
  "disconnected *" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">*</font></td></tr></table>>];
  "disconnected" -> "disconnected *";
  "disconnected *" -> "disconnected";
- "disconnected set producer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set producer</font></td></tr><tr><td align="left" port="r3">signal failure</td></tr></table>>];
- "disconnected" -> "disconnected set producer";
- "disconnected set producer" -> "disconnected";
  "disconnected set consumer" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">set consumer</font></td></tr><tr><td align="left" port="r3">signal failure</td></tr></table>>];
  "disconnected" -> "disconnected set consumer";
  "disconnected set consumer" -> "disconnected";

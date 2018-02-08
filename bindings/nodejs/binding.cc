@@ -457,7 +457,6 @@ NAN_MODULE_INIT (MlmClient::Init) {
     Nan::SetPrototypeMethod (tpl, "connected", _connected);
     Nan::SetPrototypeMethod (tpl, "setPlainAuth", _set_plain_auth);
     Nan::SetPrototypeMethod (tpl, "connect", _connect);
-    Nan::SetPrototypeMethod (tpl, "setProducer", _set_producer);
     Nan::SetPrototypeMethod (tpl, "setConsumer", _set_consumer);
     Nan::SetPrototypeMethod (tpl, "removeConsumer", _remove_consumer);
     Nan::SetPrototypeMethod (tpl, "setWorker", _set_worker);
@@ -607,22 +606,6 @@ NAN_METHOD (MlmClient::_connect) {
     info.GetReturnValue ().Set (Nan::New<Number>(result));
 }
 
-NAN_METHOD (MlmClient::_set_producer) {
-    MlmClient *mlm_client = Nan::ObjectWrap::Unwrap <MlmClient> (info.Holder ());
-    char *stream;
-    if (info [0]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `stream`");
-    else
-    if (!info [0]->IsString ())
-        return Nan::ThrowTypeError ("`stream` must be a string");
-    else {
-        Nan::Utf8String stream_utf8 (info [0].As<String>());
-        stream = *stream_utf8;
-    }
-    int result = mlm_client_set_producer (mlm_client->self, (const char *)stream);
-    info.GetReturnValue ().Set (Nan::New<Number>(result));
-}
-
 NAN_METHOD (MlmClient::_set_consumer) {
     MlmClient *mlm_client = Nan::ObjectWrap::Unwrap <MlmClient> (info.Holder ());
     char *stream;
@@ -729,18 +712,28 @@ NAN_METHOD (MlmClient::_remove_worker) {
 
 NAN_METHOD (MlmClient::_send) {
     MlmClient *mlm_client = Nan::ObjectWrap::Unwrap <MlmClient> (info.Holder ());
-    char *subject;
+    char *address;
     if (info [0]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `subject`");
+        return Nan::ThrowTypeError ("method requires a `address`");
     else
     if (!info [0]->IsString ())
+        return Nan::ThrowTypeError ("`address` must be a string");
+    else {
+        Nan::Utf8String address_utf8 (info [0].As<String>());
+        address = *address_utf8;
+    }
+    char *subject;
+    if (info [1]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `subject`");
+    else
+    if (!info [1]->IsString ())
         return Nan::ThrowTypeError ("`subject` must be a string");
     else {
-        Nan::Utf8String subject_utf8 (info [0].As<String>());
+        Nan::Utf8String subject_utf8 (info [1].As<String>());
         subject = *subject_utf8;
     }
-    Zmsg *content = Nan::ObjectWrap::Unwrap<Zmsg>(info [1].As<Object>());
-    int result = mlm_client_send (mlm_client->self, (const char *)subject, &content->self);
+    Zmsg *content = Nan::ObjectWrap::Unwrap<Zmsg>(info [2].As<Object>());
+    int result = mlm_client_send (mlm_client->self, (const char *)address, (const char *)subject, &content->self);
     info.GetReturnValue ().Set (Nan::New<Number>(result));
 }
 
@@ -902,27 +895,37 @@ NAN_METHOD (MlmClient::_tracker) {
 
 NAN_METHOD (MlmClient::_sendx) {
     MlmClient *mlm_client = Nan::ObjectWrap::Unwrap <MlmClient> (info.Holder ());
-    char *subject;
+    char *address;
     if (info [0]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `subject`");
+        return Nan::ThrowTypeError ("method requires a `address`");
     else
     if (!info [0]->IsString ())
+        return Nan::ThrowTypeError ("`address` must be a string");
+    else {
+        Nan::Utf8String address_utf8 (info [0].As<String>());
+        address = *address_utf8;
+    }
+    char *subject;
+    if (info [1]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `subject`");
+    else
+    if (!info [1]->IsString ())
         return Nan::ThrowTypeError ("`subject` must be a string");
     else {
-        Nan::Utf8String subject_utf8 (info [0].As<String>());
+        Nan::Utf8String subject_utf8 (info [1].As<String>());
         subject = *subject_utf8;
     }
     char *content;
-    if (info [1]->IsUndefined ())
+    if (info [2]->IsUndefined ())
         return Nan::ThrowTypeError ("method requires a `content`");
     else
-    if (!info [1]->IsString ())
+    if (!info [2]->IsString ())
         return Nan::ThrowTypeError ("`content` must be a string");
     else {
-        Nan::Utf8String content_utf8 (info [1].As<String>());
+        Nan::Utf8String content_utf8 (info [2].As<String>());
         content = *content_utf8;
     }
-    int result = mlm_client_sendx (mlm_client->self, (const char *)subject, (const char *)content);
+    int result = mlm_client_sendx (mlm_client->self, (const char *)address, (const char *)subject, (const char *)content);
     info.GetReturnValue ().Set (Nan::New<Number>(result));
 }
 
@@ -1000,27 +1003,37 @@ NAN_METHOD (MlmClient::_sendforx) {
 
 NAN_METHOD (MlmClient::_recvx) {
     MlmClient *mlm_client = Nan::ObjectWrap::Unwrap <MlmClient> (info.Holder ());
-    char *subject_p;
+    char *address_p;
     if (info [0]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `subject_p`");
+        return Nan::ThrowTypeError ("method requires a `address_p`");
     else
     if (!info [0]->IsString ())
+        return Nan::ThrowTypeError ("`address_p` must be a string");
+    else {
+        Nan::Utf8String address_p_utf8 (info [0].As<String>());
+        address_p = *address_p_utf8;
+    }
+    char *subject_p;
+    if (info [1]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `subject_p`");
+    else
+    if (!info [1]->IsString ())
         return Nan::ThrowTypeError ("`subject_p` must be a string");
     else {
-        Nan::Utf8String subject_p_utf8 (info [0].As<String>());
+        Nan::Utf8String subject_p_utf8 (info [1].As<String>());
         subject_p = *subject_p_utf8;
     }
     char *string_p;
-    if (info [1]->IsUndefined ())
+    if (info [2]->IsUndefined ())
         return Nan::ThrowTypeError ("method requires a `string_p`");
     else
-    if (!info [1]->IsString ())
+    if (!info [2]->IsString ())
         return Nan::ThrowTypeError ("`string_p` must be a string");
     else {
-        Nan::Utf8String string_p_utf8 (info [1].As<String>());
+        Nan::Utf8String string_p_utf8 (info [2].As<String>());
         string_p = *string_p_utf8;
     }
-    int result = mlm_client_recvx (mlm_client->self, (char **)&subject_p, (char **)&string_p);
+    int result = mlm_client_recvx (mlm_client->self, (char **)&address_p, (char **)&subject_p, (char **)&string_p);
     info.GetReturnValue ().Set (Nan::New<Number>(result));
 }
 

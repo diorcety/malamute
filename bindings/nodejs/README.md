@@ -327,14 +327,6 @@ specify its address.
 Returns >= 0 if successful, -1 if interrupted.
 
 ```
-integer my_mlm_client.setProducer (String)
-```
-
-Prepare to publish to a specified stream. After this, all messages are sent to
-this stream exclusively.
-Returns >= 0 if successful, -1 if interrupted.
-
-```
 integer my_mlm_client.setConsumer (String, String)
 ```
 
@@ -370,7 +362,7 @@ Remove offers for named service.
 Returns >= 0 if successful, -1 if interrupted.
 
 ```
-integer my_mlm_client.send (String, Zmsg)
+integer my_mlm_client.send (String, String, Zmsg)
 ```
 
 Send STREAM SEND message to server, takes ownership of message
@@ -448,7 +440,7 @@ string my_mlm_client.tracker ()
 Return last received tracker
 
 ```
-integer my_mlm_client.sendx (String, String)
+integer my_mlm_client.sendx (String, String, String)
 ```
 
 Send multipart string message to stream, end list with NULL
@@ -469,7 +461,7 @@ Send multipart string to service, end list with NULL
 Returns 0 if OK, -1 if failed due to lack of memory or other error.
 
 ```
-integer my_mlm_client.recvx (String, String)
+integer my_mlm_client.recvx (String, String, String)
 ```
 
 Receive a subject and string content from the server. The content may be

@@ -31,21 +31,20 @@ extern "C" {
 #define MLM_PROTO_CONNECTION_PING 2         //
 #define MLM_PROTO_CONNECTION_PONG 3         //
 #define MLM_PROTO_CONNECTION_CLOSE 4        //
-#define MLM_PROTO_STREAM_WRITE 5            //
-#define MLM_PROTO_STREAM_READ 6             //
-#define MLM_PROTO_STREAM_CANCEL 7           //
-#define MLM_PROTO_STREAM_SEND 8             //
-#define MLM_PROTO_STREAM_DELIVER 9          //
-#define MLM_PROTO_MAILBOX_SEND 10           //
-#define MLM_PROTO_MAILBOX_DELIVER 11        //
-#define MLM_PROTO_SERVICE_SEND 12           //
-#define MLM_PROTO_SERVICE_OFFER 13          //
-#define MLM_PROTO_SERVICE_CANCEL 14         //
-#define MLM_PROTO_SERVICE_DELIVER 15        //
-#define MLM_PROTO_OK 16                     //
-#define MLM_PROTO_ERROR 17                  //
-#define MLM_PROTO_CREDIT 18                 //
-#define MLM_PROTO_CONFIRM 19                //
+#define MLM_PROTO_STREAM_READ 5             //
+#define MLM_PROTO_STREAM_CANCEL 6           //
+#define MLM_PROTO_STREAM_SEND 7             //
+#define MLM_PROTO_STREAM_DELIVER 8          //
+#define MLM_PROTO_MAILBOX_SEND 9            //
+#define MLM_PROTO_MAILBOX_DELIVER 10        //
+#define MLM_PROTO_SERVICE_SEND 11           //
+#define MLM_PROTO_SERVICE_OFFER 12          //
+#define MLM_PROTO_SERVICE_CANCEL 13         //
+#define MLM_PROTO_SERVICE_DELIVER 14        //
+#define MLM_PROTO_OK 15                     //
+#define MLM_PROTO_ERROR 16                  //
+#define MLM_PROTO_CREDIT 17                 //
+#define MLM_PROTO_CONFIRM 18                //
 
 //  Create a new empty mlm_proto
 MLM_EXPORT mlm_proto_t *

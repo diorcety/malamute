@@ -65,12 +65,6 @@ MLM_EXPORT int
 MLM_EXPORT int
     mlm_client_connect (mlm_client_t *self, const char *endpoint, uint32_t timeout, const char *address);
 
-//  Prepare to publish to a specified stream. After this, all messages are sent to
-//  this stream exclusively.
-//  Returns >= 0 if successful, -1 if interrupted.
-MLM_EXPORT int
-    mlm_client_set_producer (mlm_client_t *self, const char *stream);
-
 //  Consume messages with matching subjects. The pattern is a regular expression
 //  using the CZMQ zrex syntax. The most useful elements are: ^ and $ to match the
 //  start and end, . to match any character, \s and \S to match whitespace and
@@ -101,7 +95,7 @@ MLM_EXPORT int
 //  Send STREAM SEND message to server, takes ownership of message
 //  and destroys message when done sending it.
 MLM_EXPORT int
-    mlm_client_send (mlm_client_t *self, const char *subject, zmsg_t **content);
+    mlm_client_send (mlm_client_t *self, const char *address, const char *subject, zmsg_t **content);
 
 //  Send MAILBOX SEND message to server, takes ownership of message
 //  and destroys message when done sending it.
@@ -156,7 +150,7 @@ MLM_EXPORT const char *
 //  Send multipart string message to stream, end list with NULL
 //  Returns 0 if OK, -1 if failed due to lack of memory or other error.
 MLM_EXPORT int
-    mlm_client_sendx (mlm_client_t *self, const char *subject, const char *content, ...);
+    mlm_client_sendx (mlm_client_t *self, const char *address, const char *subject, const char *content, ...);
 
 //  Send multipart string to mailbox, end list with NULL
 //  Returns 0 if OK, -1 if failed due to lack of memory or other error.
@@ -176,7 +170,7 @@ MLM_EXPORT int
 //  subject and content strings when finished with them. To get the type of
 //  the command, use mlm_client_command ().
 MLM_EXPORT int
-    mlm_client_recvx (mlm_client_t *self, char **subject_p, char **string_p, ...);
+    mlm_client_recvx (mlm_client_t *self, char **address_p, char **subject_p, char **string_p, ...);
 
 //  Enable verbose tracing (animation) of state machine activity.
 MLM_EXPORT void

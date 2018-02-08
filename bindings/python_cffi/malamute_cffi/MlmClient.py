@@ -72,14 +72,6 @@ class MlmClient(object):
         """
         return libmalamute.mlm_client_connect(self._p, to_bytes(endpoint), timeout, to_bytes(address))
 
-    def set_producer(self, stream):
-        """
-        Prepare to publish to a specified stream. After this, all messages are sent to
-        this stream exclusively.
-        Returns >= 0 if successful, -1 if interrupted.
-        """
-        return libmalamute.mlm_client_set_producer(self._p, to_bytes(stream))
-
     def set_consumer(self, stream, pattern):
         """
         Consume messages with matching subjects. The pattern is a regular expression
@@ -115,12 +107,12 @@ class MlmClient(object):
         """
         return libmalamute.mlm_client_remove_worker(self._p, to_bytes(address), to_bytes(pattern))
 
-    def send(self, subject, content):
+    def send(self, address, subject, content):
         """
         Send STREAM SEND message to server, takes ownership of message
         and destroys message when done sending it.
         """
-        return libmalamute.mlm_client_send(self._p, to_bytes(subject), content._p)
+        return libmalamute.mlm_client_send(self._p, to_bytes(address), to_bytes(subject), content._p)
 
     def sendto(self, address, subject, tracker, timeout, content):
         """
@@ -193,12 +185,12 @@ class MlmClient(object):
         """
         return libmalamute.mlm_client_tracker(self._p)
 
-    def sendx(self, subject, content, ):
+    def sendx(self, address, subject, content, ):
         """
         Send multipart string message to stream, end list with NULL
         Returns 0 if OK, -1 if failed due to lack of memory or other error.
         """
-        return libmalamute.mlm_client_sendx(self._p, to_bytes(subject), to_bytes(content), )
+        return libmalamute.mlm_client_sendx(self._p, to_bytes(address), to_bytes(subject), to_bytes(content), )
 
     def sendtox(self, address, subject, content, ):
         """
@@ -214,7 +206,7 @@ class MlmClient(object):
         """
         return libmalamute.mlm_client_sendforx(self._p, to_bytes(address), to_bytes(subject), to_bytes(content), )
 
-    def recvx(self, subject_p, string_p, ):
+    def recvx(self, address_p, subject_p, string_p, ):
         """
         Receive a subject and string content from the server. The content may be
         1 or more string frames. This method is orthogonal to the sendx methods.
@@ -224,7 +216,7 @@ class MlmClient(object):
         subject and content strings when finished with them. To get the type of
         the command, use mlm_client_command ().
         """
-        return libmalamute.mlm_client_recvx(self._p, to_bytes(subject_p), to_bytes(string_p), )
+        return libmalamute.mlm_client_recvx(self._p, to_bytes(address_p), to_bytes(subject_p), to_bytes(string_p), )
 
     def set_verbose(self, verbose):
         """

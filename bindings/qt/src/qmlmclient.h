@@ -51,11 +51,6 @@ public:
     //  Returns >= 0 if successful, -1 if interrupted.
     int connect (const QString &endpoint, quint32 timeout, const QString &address);
 
-    //  Prepare to publish to a specified stream. After this, all messages are sent to
-    //  this stream exclusively.
-    //  Returns >= 0 if successful, -1 if interrupted.
-    int setProducer (const QString &stream);
-
     //  Consume messages with matching subjects. The pattern is a regular expression
     //  using the CZMQ zrex syntax. The most useful elements are: ^ and $ to match the
     //  start and end, . to match any character, \s and \S to match whitespace and
@@ -81,7 +76,7 @@ public:
 
     //  Send STREAM SEND message to server, takes ownership of message
     //  and destroys message when done sending it.
-    int send (const QString &subject, QZmsg *content);
+    int send (const QString &address, const QString &subject, QZmsg *content);
 
     //  Send MAILBOX SEND message to server, takes ownership of message
     //  and destroys message when done sending it.

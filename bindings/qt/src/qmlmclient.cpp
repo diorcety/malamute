@@ -83,16 +83,6 @@ int QMlmClient::connect (const QString &endpoint, quint32 timeout, const QString
 }
 
 ///
-//  Prepare to publish to a specified stream. After this, all messages are sent to
-//  this stream exclusively.
-//  Returns >= 0 if successful, -1 if interrupted.
-int QMlmClient::setProducer (const QString &stream)
-{
-    int rv = mlm_client_set_producer (self, stream.toUtf8().data());
-    return rv;
-}
-
-///
 //  Consume messages with matching subjects. The pattern is a regular expression
 //  using the CZMQ zrex syntax. The most useful elements are: ^ and $ to match the
 //  start and end, . to match any character, \s and \S to match whitespace and
@@ -138,9 +128,9 @@ int QMlmClient::removeWorker (const QString &address, const QString &pattern)
 ///
 //  Send STREAM SEND message to server, takes ownership of message
 //  and destroys message when done sending it.
-int QMlmClient::send (const QString &subject, QZmsg *content)
+int QMlmClient::send (const QString &address, const QString &subject, QZmsg *content)
 {
-    int rv = mlm_client_send (self, subject.toUtf8().data(), &content->self);
+    int rv = mlm_client_send (self, address.toUtf8().data(), subject.toUtf8().data(), &content->self);
     return rv;
 }
 

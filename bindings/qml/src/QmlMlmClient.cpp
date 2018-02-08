@@ -51,14 +51,6 @@ int QmlMlmClient::connect (const QString &endpoint, uint32_t timeout, const QStr
 };
 
 ///
-//  Prepare to publish to a specified stream. After this, all messages are sent to
-//  this stream exclusively.
-//  Returns >= 0 if successful, -1 if interrupted.
-int QmlMlmClient::setProducer (const QString &stream) {
-    return mlm_client_set_producer (self, stream.toUtf8().data());
-};
-
-///
 //  Consume messages with matching subjects. The pattern is a regular expression
 //  using the CZMQ zrex syntax. The most useful elements are: ^ and $ to match the
 //  start and end, . to match any character, \s and \S to match whitespace and
@@ -96,8 +88,8 @@ int QmlMlmClient::removeWorker (const QString &address, const QString &pattern) 
 ///
 //  Send STREAM SEND message to server, takes ownership of message
 //  and destroys message when done sending it.
-int QmlMlmClient::send (const QString &subject, zmsg_t **content) {
-    return mlm_client_send (self, subject.toUtf8().data(), content);
+int QmlMlmClient::send (const QString &address, const QString &subject, zmsg_t **content) {
+    return mlm_client_send (self, address.toUtf8().data(), subject.toUtf8().data(), content);
 };
 
 ///
@@ -174,8 +166,8 @@ const QString QmlMlmClient::tracker () {
 ///
 //  Send multipart string message to stream, end list with NULL
 //  Returns 0 if OK, -1 if failed due to lack of memory or other error.
-int QmlMlmClient::sendx (const QString &subject, const QString &content) {
-    return mlm_client_sendx (self, subject.toUtf8().data(), content.toUtf8().data());
+int QmlMlmClient::sendx (const QString &address, const QString &subject, const QString &content) {
+    return mlm_client_sendx (self, address.toUtf8().data(), subject.toUtf8().data(), content.toUtf8().data());
 };
 
 ///
@@ -200,8 +192,8 @@ int QmlMlmClient::sendforx (const QString &address, const QString &subject, cons
 //  of string contents received, or -1 in case of error. Free the returned
 //  subject and content strings when finished with them. To get the type of
 //  the command, use mlm_client_command ().
-int QmlMlmClient::recvx (QString subjectP, QString stringP) {
-    return mlm_client_recvx (self, subjectP.toUtf8().data(), stringP.toUtf8().data());
+int QmlMlmClient::recvx (QString addressP, QString subjectP, QString stringP) {
+    return mlm_client_recvx (self, addressP.toUtf8().data(), subjectP.toUtf8().data(), stringP.toUtf8().data());
 };
 
 ///

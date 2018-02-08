@@ -39,24 +39,23 @@ typedef enum {
     NULL_event = 0,
     terminate_event = 1,
     connection_open_event = 2,
-    stream_write_event = 3,
-    stream_read_event = 4,
-    stream_cancel_event = 5,
-    stream_send_event = 6,
-    mailbox_send_event = 7,
-    service_send_event = 8,
-    service_offer_event = 9,
-    service_cancel_event = 10,
-    confirm_event = 11,
-    credit_event = 12,
-    connection_ping_event = 13,
-    connection_close_event = 14,
-    stream_message_event = 15,
-    mailbox_message_event = 16,
-    service_message_event = 17,
-    expired_event = 18,
-    exception_event = 19,
-    settled_event = 20
+    stream_read_event = 3,
+    stream_cancel_event = 4,
+    stream_send_event = 5,
+    mailbox_send_event = 6,
+    service_send_event = 7,
+    service_offer_event = 8,
+    service_cancel_event = 9,
+    confirm_event = 10,
+    credit_event = 11,
+    connection_ping_event = 12,
+    connection_close_event = 13,
+    stream_message_event = 14,
+    mailbox_message_event = 15,
+    service_message_event = 16,
+    expired_event = 17,
+    exception_event = 18,
+    settled_event = 19
 } event_t;
 
 //  Names for state machine logging and error reporting
@@ -74,7 +73,6 @@ s_event_name [] = {
     "(NONE)",
     "terminate",
     "CONNECTION_OPEN",
-    "STREAM_WRITE",
     "STREAM_READ",
     "STREAM_CANCEL",
     "STREAM_SEND",
@@ -162,8 +160,6 @@ static void
     check_for_mailbox_messages (client_t *self);
 static void
     signal_command_invalid (client_t *self);
-static void
-    store_stream_writer (client_t *self);
 static void
     store_stream_reader (client_t *self);
 static void
@@ -406,9 +402,6 @@ s_protocol_event (mlm_proto_t *message)
             break;
         case MLM_PROTO_CONNECTION_CLOSE:
             return connection_close_event;
-            break;
-        case MLM_PROTO_STREAM_WRITE:
-            return stream_write_event;
             break;
         case MLM_PROTO_STREAM_READ:
             return stream_read_event;
@@ -730,24 +723,6 @@ s_client_execute (s_client_t *self, event_t event)
                 break;
 
             case connected_state:
-                if (self->event == stream_write_event) {
-                    if (!self->exception) {
-                        //  store stream writer
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ store stream writer", self->log_prefix);
-                        store_stream_writer (&self->client);
-                    }
-                    if (!self->exception) {
-                        //  send OK
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ send OK",
-                                self->log_prefix);
-                        mlm_proto_set_id (self->server->message, MLM_PROTO_OK);
-                        mlm_proto_set_routing_id (self->server->message, self->routing_id);
-                        mlm_proto_send (self->server->message, self->server->router);
-                    }
-                }
-                else
                 if (self->event == stream_read_event) {
                     if (!self->exception) {
                         //  store stream reader
