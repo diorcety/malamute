@@ -1542,10 +1542,12 @@ s_client_handle_msgpipe (zloop_t *loop, zsock_t *reader, void *argument)
             zsock_signal (self->cmdpipe, 0);
         else
         if (streq (method, "STREAM SEND")) {
+            char *address;
             char *subject;
             zmsg_t *content;
-            zsock_brecv (self->msgpipe, "sp", &subject, &content);
+            zsock_brecv (self->msgpipe, "ssp", &address, &subject, &content);
             mlm_proto_set_id (self->message, MLM_PROTO_STREAM_SEND);
+            mlm_proto_set_address (self->message, address);
             mlm_proto_set_subject (self->message, subject);
             mlm_proto_set_content (self->message, &content);
             mlm_proto_send (self->message, self->dealer);
@@ -1955,12 +1957,12 @@ mlm_client_remove_worker (mlm_client_t *self, const char *address, const char *p
 //  destroys when done sending it.
 
 int
-mlm_client_send (mlm_client_t *self, const char *subject, zmsg_t **content_p)
+mlm_client_send (mlm_client_t *self, const char *address, const char *subject, zmsg_t **content_p)
 {
     assert (self);
     //  Send message name as first, separate frame
     zstr_sendm (self->msgpipe, "STREAM SEND");
-    int rc = zsock_bsend (self->msgpipe, "sp", subject, *content_p);
+    int rc = zsock_bsend (self->msgpipe, "ssp", address, subject, *content_p);
     *content_p = NULL;          //  Take ownership of content
     return rc;
 }
@@ -2134,6 +2136,7 @@ mlm_client_set_verbose (mlm_client_t *self, bool verbose)
 int
 mlm_client_sendx (
     mlm_client_t *self,
+    const char *address,
     const char *subject,
     const char *content, ...)
 {
@@ -2148,7 +2151,7 @@ mlm_client_sendx (
         content = va_arg (args, char *);
     }
     va_end (args);
-    return mlm_client_send (self, subject, &msg);
+    return mlm_client_send (self, address, subject, &msg);
 }
 
 
@@ -2216,6 +2219,7 @@ mlm_client_sendforx (
 int
 mlm_client_recvx (
     mlm_client_t *self,
+    char **address_p,
     char **subject_p,
     char **string_p, ...)
 {
@@ -2224,6 +2228,7 @@ mlm_client_recvx (
     if (!msg)
         return -1;
 
+    *address_p = strdup (mlm_client_address (self));
     *subject_p = strdup (mlm_client_subject (self));
     int count = 0;
     va_list args;
