@@ -53,7 +53,7 @@ void
     mlm_msg_unlink (mlm_msg_t **self_p);
 
 //  Self test of this class
-MLM_EXPORT void
+MLM_PRIVATE void
     mlm_msg_test (bool verbose);
 //  @end
 

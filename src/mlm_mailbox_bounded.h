@@ -39,7 +39,7 @@ MLM_EXPORT void
     mlm_mailbox_bounded (zsock_t *pipe, void *args);
 
 //  Self test of this class
-MLM_EXPORT void
+MLM_PRIVATE void
     mlm_mailbox_bounded_test (bool verbose);
 //  @end
 

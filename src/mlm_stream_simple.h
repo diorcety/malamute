@@ -42,7 +42,7 @@ MLM_EXPORT void
 #define MLM_STREAM_ACK_CANCEL ((void *)1)
 
 //  Self test of this class
-MLM_EXPORT void
+MLM_PRIVATE void
     mlm_stream_simple_test (bool verbose);
 //  @end
 
