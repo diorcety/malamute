@@ -554,7 +554,15 @@ store_stream_reader (client_t *self)
 {
     stream_t *stream = s_stream_require (self, mlm_proto_stream (self->message));
     if (stream) {
-        zlistx_add_end (self->readers, stream);
+        void *compare = zlistx_first (self->readers);
+        while (compare) {
+            if (compare == stream)
+                break;      //  Duplicate stream, ignore
+            compare = zlistx_next (self->readers);
+        }
+        if (!compare) {
+            zlistx_add_end (self->readers, stream);
+        }
         zsock_send (stream->actor, "sps", "COMPILE", self, mlm_proto_pattern (self->message));
         engine_client_get (self);
         mlm_msg_t *lastmsg = (mlm_msg_t *) zlistx_first (stream->lastmsgs);
