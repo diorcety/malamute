@@ -51,6 +51,9 @@ typedef struct {
     char *pattern;              //  Stream pattern if any
 } replay_t;
 
+static void
+add_replay_command(zlistx_t *list, replay_t *replay);
+
 static replay_t *
 s_replay_new (const char *name, const char *stream, const char *pattern)
 {
@@ -238,7 +241,7 @@ server_has_gone_offline (client_t *self)
 static void
 prepare_stream_write_command (client_t *self)
 {
-    zlistx_add_end (self->replays,
+    add_replay_command (self->replays,
         s_replay_new ("STREAM WRITE", self->args->stream, NULL));
     mlm_proto_set_stream (self->message, self->args->stream);
 }
@@ -253,7 +256,7 @@ prepare_stream_read_command (client_t *self)
 {
     zrex_t *rex = zrex_new(self->args->pattern);
     if (rex && zrex_valid (rex)) {
-        zlistx_add_end (self->replays,
+        add_replay_command (self->replays,
                 s_replay_new ("STREAM READ", self->args->stream, self->args->pattern));
         mlm_proto_set_stream (self->message, self->args->stream);
         mlm_proto_set_pattern (self->message, self->args->pattern);
@@ -271,7 +274,7 @@ prepare_stream_read_command (client_t *self)
 static void
 prepare_stream_cancel_command (client_t *self)
 {
-    zlistx_add_end (self->replays,
+    add_replay_command (self->replays,
         s_replay_new ("STREAM CANCEL", self->args->stream, self->args->pattern));
     mlm_proto_set_stream (self->message, self->args->stream);
     mlm_proto_set_pattern (self->message, self->args->pattern);
@@ -284,7 +287,7 @@ prepare_stream_cancel_command (client_t *self)
 static void
 prepare_service_offer_command (client_t *self)
 {
-    zlistx_add_end (self->replays,
+    add_replay_command (self->replays,
         s_replay_new ("SERVICE OFFER", self->args->address, self->args->pattern));
     mlm_proto_set_address (self->message, self->args->address);
     mlm_proto_set_pattern (self->message, self->args->pattern);
@@ -297,7 +300,7 @@ prepare_service_offer_command (client_t *self)
 static void
 prepare_service_cancel_command (client_t *self)
 {
-    zlistx_add_end (self->replays,
+    add_replay_command (self->replays,
         s_replay_new ("SERVICE CANCEL", self->args->address, self->args->pattern));
     mlm_proto_set_address (self->message, self->args->address);
     mlm_proto_set_pattern (self->message, self->args->pattern);
@@ -324,6 +327,32 @@ get_next_replay_command (client_t *self)
 {
     replay_t *replay = (replay_t *) zlistx_next (self->replays);
     s_replay_execute (self, replay);
+}
+
+
+//  ---------------------------------------------------------------------------
+//  add_replay_command
+//
+
+static void
+add_replay_command(zlistx_t *list, replay_t *replay)
+{
+    if (streq (replay->name, "STREAM CANCEL") || streq (replay->name, "SERVICE CANCEL")) {
+        replay_t *elem = (replay_t *) zlistx_first (list);
+        while(elem) {
+            int match = 0;
+            if (streq (replay->name, "STREAM CANCEL") && streq (elem->name, "STREAM READ"))
+                match = 1;
+            else if (streq (replay->name, "SERVICE CANCEL") && streq (elem->name, "SERVICE OFFER"))
+                match = 1;
+            match &= streq (elem->stream, replay->stream);
+            match &= strlen (replay->pattern) == 0 || streq (elem->pattern, replay->pattern);
+            if (match)
+                zlistx_delete (list, zlistx_cursor (list));
+            elem = (replay_t *) zlistx_next (list);
+        }
+    } else
+        zlistx_add_end (list, replay);
 }
 
 
