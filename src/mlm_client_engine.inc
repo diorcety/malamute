@@ -30,9 +30,10 @@ typedef enum {
     confirming_state = 4,
     terminating_state = 5,
     reconnecting_state = 6,
-    disconnected_state = 7,
-    defaults_state = 8,
-    have_error_state = 9
+    replaying_state = 7,
+    disconnected_state = 8,
+    defaults_state = 9,
+    have_error_state = 10
 } state_t;
 
 typedef enum {
@@ -71,6 +72,7 @@ s_state_name [] = {
     "confirming",
     "terminating",
     "reconnecting",
+    "replaying",
     "disconnected",
     "defaults",
     "have error"
@@ -1023,9 +1025,50 @@ s_client_execute (s_client_t *self, event_t event)
                             zsys_debug ("%s:         $ get first replay command", self->log_prefix);
                         get_first_replay_command (&self->client);
                     }
+                    if (!self->exception)
+                        self->state = replaying_state;
                 }
                 else
                 if (self->event == error_event) {
+                }
+                else
+                if (self->event == connection_pong_event) {
+                }
+                else
+                if (self->event == heartbeat_event) {
+                    if (!self->exception) {
+                        //  send CONNECTION_PING
+                        if (self->verbose)
+                            zsys_debug ("%s:         $ send CONNECTION_PING",
+                                self->log_prefix);
+                        mlm_proto_set_id (self->message, MLM_PROTO_CONNECTION_PING);
+                        mlm_proto_send (self->message, self->dealer);
+                    }
+                }
+                else
+                if (self->event == expired_event) {
+                    if (!self->exception) {
+                        //  server has gone offline
+                        if (self->verbose)
+                            zsys_debug ("%s:         $ server has gone offline", self->log_prefix);
+                        server_has_gone_offline (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = disconnected_state;
+                }
+                else {
+                    //  Handle unexpected protocol events
+                }
+                break;
+
+            case replaying_state:
+                if (self->event == ok_event) {
+                    if (!self->exception) {
+                        //  get next replay command
+                        if (self->verbose)
+                            zsys_debug ("%s:         $ get next replay command", self->log_prefix);
+                        get_next_replay_command (&self->client);
+                    }
                 }
                 else
                 if (self->event == set_producer_event) {
@@ -1147,6 +1190,17 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = disconnected_state;
+                }
+                else
+                if (self->event == error_event) {
+                    if (!self->exception) {
+                        //  check status code
+                        if (self->verbose)
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
+                        check_status_code (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = have_error_state;
                 }
                 else {
                     //  Handle unexpected protocol events

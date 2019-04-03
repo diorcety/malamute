@@ -150,14 +150,23 @@
 
     <!-- After server sends ERROR for our PING -->
     <state name = "reconnecting" inherit = "defaults">
-        <event name = "OK">
+        <event name = "OK" next = "replaying">
             <action name = "client is connected" />
             <action name = "get first replay command" />
         </event>
         <event name = "ERROR">
             <!-- If we sent multiple PINGs, ignore further ERRORs -->
         </event>
-        <!-- Replay commands, looping in same state -->
+        <!-- if we receive PONG from server, we still need to wait until replay would finish -->
+        <event name = "CONNECTION PONG">
+        </event>
+    </state>
+
+    <!-- Replay commands, looping in same state -->
+    <state name = "replaying" inherit = "defaults">
+        <event name = "OK">
+            <action name = "get next replay command" />
+        </event>
         <event name = "set producer">
             <action name = "send" message = "STREAM WRITE" />
             <action name = "get next replay command" />

@@ -92,8 +92,20 @@ s_replay_execute (client_t *self, replay_t *replay)
             mlm_proto_set_pattern (self->message, replay->pattern);
         }
         else
+        if (streq (replay->name, "STREAM CANCEL")) {
+            engine_set_next_event (self, remove_consumer_event);
+            mlm_proto_set_stream (self->message, replay->stream);
+            mlm_proto_set_pattern (self->message, replay->pattern);
+        }
+        else
         if (streq (replay->name, "SERVICE OFFER")) {
             engine_set_next_event (self, set_worker_event);
+            mlm_proto_set_address (self->message, replay->stream);
+            mlm_proto_set_pattern (self->message, replay->pattern);
+        }
+        else
+        if (streq (replay->name, "SERVICE CANCEL")) {
+            engine_set_next_event (self, remove_worker_event);
             mlm_proto_set_address (self->message, replay->stream);
             mlm_proto_set_pattern (self->message, replay->pattern);
         }
