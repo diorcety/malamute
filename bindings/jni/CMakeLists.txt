@@ -18,6 +18,12 @@ find_package (JNI REQUIRED)
 include_directories (${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2} src/native/include)
 
 ########################################################################
+# JAVA dependency
+########################################################################
+find_package(Java COMPONENTS Development REQUIRED)
+include(UseJava)
+
+########################################################################
 # LIBZMQ dependency
 ########################################################################
 find_package(libzmq REQUIRED)
@@ -50,10 +56,29 @@ ELSE (MALAMUTE_FOUND)
     message( FATAL_ERROR "malamute not found." )
 ENDIF (MALAMUTE_FOUND)
 
+set(DEPENDENCY_CLASSPATH_FILE "dependencies.txt")
+file(READ ${DEPENDENCY_CLASSPATH_FILE} CLASSPATH)
+IF (UNIX)
+    string(REPLACE ":" ";" CLASSPATH ${CLASSPATH})
+ENDIF (UNIX)
+
+########################################################################
+# Generate headers
+########################################################################
+Create_javah(GENERATED_FILES files_headers
+    CLASSES
+    org.zeromq.mlm.MlmProto
+    org.zeromq.mlm.MlmClient
+    CLASSPATH ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java;${CLASSPATH}
+)
+
 set (mlmjni_sources
+    ${files_headers}
     src/main/c/org_zeromq_mlm_MlmProto.c
     src/main/c/org_zeromq_mlm_MlmClient.c
 )
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library (mlmjni SHARED ${mlmjni_sources})
 add_definitions (-DMLM_BUILD_DRAFT_API)
